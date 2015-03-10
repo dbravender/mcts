@@ -1,0 +1,17 @@
+{
+  "name": "mcts",
+  "version": "0.0.1",
+  "description": "Monte Carlos Tree Search library",
+  "repository": "https://github.com/dbravender/mcts",
+  "main": "mcts/main.js",
+  "dependencies": {
+    "lodash": "^3.5.0"
+  },
+  "devDependencies": {
+    "mocha": "^2.2.1"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "Dan Bravender"
+}
