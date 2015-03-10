@@ -17,7 +17,23 @@ describe('mcts', function () {
     assert.deepEqual(mcts.selectMove(), 0);
   });
   it('should always select the winning option when there are two options', function () {
-    var mcts2 = new MCTS(new TwoCellGame());
-    assert.equal(mcts2.selectMove(), 1);
+    var mcts = new MCTS(new TwoCellGame());
+    assert.equal(mcts.selectMove(), 1);
+  });
+  it('should favor the winning move in a game of Tic Tac Toe', function () {
+    var tictactoegame = new TicTacToeGame(),
+      mcts = new MCTS(tictactoegame, 1000, 'X');
+    tictactoegame.board = [['O',   'O', null],
+                           ['X',   'X', null],
+                           ['O',   'O', null]];
+    assert.deepEqual(mcts.selectMove(), [1, 2]);
+  });
+  it('should block the winning move in a game of Tic Tac Toe', function () {
+    var tictactoegame = new TicTacToeGame(),
+      mcts = new MCTS(tictactoegame, 1000, 'X');
+    tictactoegame.board = [[null, null,  'O'],
+                           [null,  'O', null],
+                           [null, null, null]];
+    assert.deepEqual(mcts.selectMove(), [2, 0]);
   });
 });
