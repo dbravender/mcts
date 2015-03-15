@@ -1,17 +1,18 @@
 {
   "name": "mcts",
   "version": "0.0.1",
-  "description": "Monte Carlos Tree Search library",
+  "description": "Monte Carlo Tree Search library",
   "repository": "https://github.com/dbravender/mcts",
   "main": "mcts/main.js",
   "dependencies": {
     "lodash": "^3.5.0"
   },
   "devDependencies": {
+    "jslint": "^0.9.0-pre005",
     "mocha": "^2.2.1"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "find -name '*.js' | xargs jslint && mocha"
   },
   "author": "Dan Bravender"
 }
