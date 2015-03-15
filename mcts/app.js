@@ -38,10 +38,9 @@ Node.prototype.getWinner = function () {
 };
 
 Node.prototype.nextMove = function () {
-  var chosen = _.last(_.sortBy(this.getChildren(), function (node) {
+  return _(this.getChildren()).sortBy(function (node) {
     return node.getUCB1();
-  }));
-  return chosen;
+  }).last();
 };
 
 function MCTS(game, rounds, player) {
@@ -67,9 +66,7 @@ MCTS.prototype.selectMove = function () {
       }
     }
   }
-  return _.last(_.sortBy(this.rootNode.getChildren(), function (node) {
-    return node.visits;
-  })).move;
+  return _(this.rootNode.getChildren()).sortBy('visits').last().move;
 };
 
 exports.MCTS = MCTS;
