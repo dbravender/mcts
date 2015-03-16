@@ -9,6 +9,7 @@ Implement a class that has the following methods:
 
   * getPossibleMoves() returns an array of possible moves
   * performMove(move) updates the internal state of the game based on the move
+  * getCurrentPlayer() returns the current player
   * getWinner() returns the winner or undefined if there is no winner
 
 Then to get the next move a player should perform call getcall MCTS with an instance of your game class. Here is a totally contrived game where whoever goes first wins:
@@ -16,22 +17,26 @@ Then to get the next move a player should perform call getcall MCTS with an inst
     MCTS = require('mcts').MCTS;
     
     function Game() {
-        this.winner = null;
+      this.winner = null;
     }
     
     Game.prototype.getPossibleMoves = function () {
-        if (this.winner === null) {
-            return [0];
-        }
-        return [];
+      if (this.winner === null) {
+        return [0];
+      }
+      return [];
     };
     
+    Game.prototype.getCurrentPlayer = function () {
+      return 0;
+    };
+     
     Game.prototype.performMove = function (player) {
-        this.winner = player;
+      this.winner = player;
     };
     
     Game.prototype.getWinner = function () {
-        return this.winner;
+      return this.winner;
     };
     
     var mcts = new MCTS(new Game());
