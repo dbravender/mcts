@@ -5,7 +5,7 @@
 
 var _ = require('lodash');
 var assert = require('assert');
-var MCTS = require('../mcts/app.js').MCTS;
+var MCTS = require('../mcts/index.js').MCTS;
 var games = require('./games');
 var SingleCellGame = games.SingleCellGame;
 var TwoCellGame = games.TwoCellGame;
