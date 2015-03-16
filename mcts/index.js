@@ -43,9 +43,13 @@ Node.prototype.nextMove = function () {
 };
 
 function MCTS(game, rounds, player) {
+  var self = this;
   this.game = game;
   this.nodeSort = function (node) {
-    return node.getUCB1();
+    if (node.parent.game.getCurrentPlayer() === self.player) {
+      return node.getUCB1();
+    }
+    return Math.random();
   };
   this.rounds = rounds || 1000;
   this.player = player || 0;

@@ -20,6 +20,10 @@ SingleCellGame.prototype.performMove = function (move) {
   this.board[move] = 0;
 };
 
+SingleCellGame.prototype.getCurrentPlayer = function () {
+  return 0;
+};
+
 SingleCellGame.prototype.getWinner = function () {
   return this.board[0];
 };
@@ -44,6 +48,10 @@ TwoCellGame.prototype.performMove = function (move) {
   this.board[move] = this.currentPlayer;
   this.currentPlayer += 1;
   this.currentPlayer = this.currentPlayer % 2;
+};
+
+TwoCellGame.prototype.getCurrentPlayer = function () {
+  return this.currentPlayer;
 };
 
 TwoCellGame.prototype.getWinner = function () {
@@ -80,6 +88,10 @@ TicTacToeGame.prototype.getPossibleMoves = function () {
 TicTacToeGame.prototype.performMove = function (move) {
   this.board[move[0]][move[1]] = this.currentPlayer;
   this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
+};
+
+TicTacToeGame.prototype.getCurrentPlayer = function () {
+  return this.currentPlayer;
 };
 
 TicTacToeGame.prototype.getWinner = function () {
