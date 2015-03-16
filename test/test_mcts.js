@@ -30,7 +30,7 @@ describe('mcts', function () {
   });
   it('should block the winning move in a game of Tic Tac Toe', function () {
     var tictactoegame = new TicTacToeGame(),
-      mcts = new MCTS(tictactoegame, 1000, 'X');
+      mcts = new MCTS(tictactoegame, 100000, 'X');
     tictactoegame.board = [[null, null,  'O'],
                            [null,  'O', null],
                            [null, null, null]];
