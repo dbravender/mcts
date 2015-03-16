@@ -4,8 +4,9 @@
 
 var _ = require('lodash');
 
-function Node(game, parent, move, depth) {
+function Node(game, parent, move, depth, mcts) {
   this.game = game;
+  this.mcts = mcts;
   this.parent = parent;
   this.move = move;
   this.wins = 0;
@@ -25,7 +26,7 @@ Node.prototype.getChildren = function () {
       this.game.performMove(this.move);
     }
     this.children = _.map(this.game.getPossibleMoves(), function (move) {
-      return new Node(_.assign(new this.game.constructor(), _.cloneDeep(this.game)), this, move, this.depth + 1);
+      return new Node(_.assign(new this.game.constructor(), _.cloneDeep(this.game)), this, move, this.depth + 1, this.mcts);
     }, this);
   }
   return this.children;
@@ -38,16 +39,17 @@ Node.prototype.getWinner = function () {
 };
 
 Node.prototype.nextMove = function () {
-  return _(this.getChildren()).sortBy(function (node) {
-    return node.getUCB1();
-  }).last();
+  return _(this.getChildren()).sortBy(this.mcts.nodeSort).last();
 };
 
 function MCTS(game, rounds, player) {
   this.game = game;
+  this.nodeSort = function (node) {
+    return node.getUCB1();
+  };
   this.rounds = rounds || 1000;
   this.player = player || 0;
-  this.rootNode = new Node(game, null, null);
+  this.rootNode = new Node(game, null, null, 0, this);
 }
 
 MCTS.prototype.selectMove = function () {
