@@ -30,10 +30,18 @@ describe('mcts', function () {
   });
   it('should block the winning move in a game of Tic Tac Toe', function () {
     var tictactoegame = new TicTacToeGame(),
-      mcts = new MCTS(tictactoegame, 10000, 'X');
+      mcts = new MCTS(tictactoegame, 1000, 'X');
     tictactoegame.board = [[null, null,  'O'],
                            [null,  'O', null],
                            [null, null, null]];
     assert.deepEqual(mcts.selectMove(), [2, 0]);
+    // Make sure opponent moves are visited in order
+    _.forEach(mcts.rootNode.getChildren(), function (node) {
+      var childVisits = _(node.getChildren()).pluck('visits'),
+        maxChildVisits = childVisits.max();
+      assert.ok(childVisits.every(function (visits) {
+        return _.inRange(visits, maxChildVisits - 1, maxChildVisits + 1);
+      }));
+    });
   });
 });

@@ -49,7 +49,7 @@ function MCTS(game, rounds, player) {
     if (node.parent.game.getCurrentPlayer() === self.player) {
       return node.getUCB1();
     }
-    return node.visits;
+    return -node.visits;
   };
   this.rounds = rounds || 1000;
   this.player = player || 0;
