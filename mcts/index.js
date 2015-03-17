@@ -39,7 +39,8 @@ Node.prototype.getWinner = function () {
 };
 
 Node.prototype.nextMove = function () {
-  return _(this.getChildren()).sortBy(this.mcts.nodeSort).last();
+  // shuffle because sortBy is a stable sort but we want equal nodes to be chosen randomly
+  return _(this.getChildren()).shuffle().sortBy(this.mcts.nodeSort).last();
 };
 
 function MCTS(game, rounds, player) {
