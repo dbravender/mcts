@@ -4,6 +4,10 @@
 
 var _ = require('lodash');
 
+function RandomSelection(array) {
+  this.array = array;
+}
+
 function Node(game, parent, move, depth, mcts) {
   this.game = game;
   this.mcts = mcts;
@@ -13,6 +17,7 @@ function Node(game, parent, move, depth, mcts) {
   this.visits = 0;
   this.children = null;
   this.depth = depth || 0;
+  this.randomNode = false;
 }
 
 Node.prototype.getUCB1 = function () {
@@ -25,7 +30,12 @@ Node.prototype.getChildren = function () {
     if (this.move !== null) {
       this.game.performMove(this.move);
     }
-    this.children = _.map(this.game.getPossibleMoves(), function (move) {
+    var moves = this.game.getPossibleMoves();
+    if (moves instanceof RandomSelection) {
+      moves = moves.array;
+      this.randomNode = true;
+    }
+    this.children = _.map(moves, function (move) {
       return new Node(_.assign(new this.game.constructor(), _.cloneDeep(this.game)), this, move, this.depth + 1, this.mcts);
     }, this);
   }
@@ -40,6 +50,9 @@ Node.prototype.getWinner = function () {
 
 Node.prototype.nextMove = function () {
   // shuffle because sortBy is a stable sort but we want equal nodes to be chosen randomly
+  if (this.randomNode) {
+    return _(this.getChildren()).shuffle().last();
+  }
   return _(this.getChildren()).shuffle().sortBy(this.mcts.nodeSort).last();
 };
 
@@ -77,3 +90,4 @@ MCTS.prototype.selectMove = function () {
 };
 
 exports.MCTS = MCTS;
+exports.RandomSelection = RandomSelection;

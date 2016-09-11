@@ -5,11 +5,13 @@
 
 var _ = require('lodash');
 var assert = require('assert');
-var MCTS = require('../mcts/index.js').MCTS;
+var mcts = require('../mcts/index.js');
+var MCTS = mcts.MCTS, RandomSelection = mcts.RandomSelection;
 var games = require('./games');
 var SingleCellGame = games.SingleCellGame;
 var TwoCellGame = games.TwoCellGame;
 var TicTacToeGame = games.TicTacToeGame;
+var SummingDiceGame = games.SummingDiceGame;
 
 describe('mcts', function () {
   it('should return one option when only one is returned for a state', function () {
@@ -43,5 +45,18 @@ describe('mcts', function () {
         return _.inRange(visits, maxChildVisits - 1, maxChildVisits + 1);
       }));
     });
+  });
+  it('should randomly select moves instead of consulting the UCB for RandomSelection moves', function () {
+    var summingdicegame = new SummingDiceGame(),
+      mcts = new MCTS(summingdicegame, 100, 1);
+    assert.equal(mcts.selectMove(), 2);
+    assert.equal(mcts.rootNode.getChildren()[0].randomNode, true);
+  });
+});
+
+describe('RandomElement', function () {
+  it('should initialize an array based on its first parameter', function () {
+    var rs = new RandomSelection([0, 1, 2, 3]);
+    assert.deepEqual(rs.array, [0, 1, 2, 3]);
   });
 });
