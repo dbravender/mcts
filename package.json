@@ -8,11 +8,15 @@
     "lodash": "^3.5.0"
   },
   "devDependencies": {
-    "jslint": "^0.9.0-pre005",
+    "eslint": "^3.5.0",
+    "eslint-config-standard": "^6.0.0",
+    "eslint-plugin-promise": "^2.0.1",
+    "eslint-plugin-standard": "^2.0.0",
     "mocha": "^2.2.1"
   },
   "scripts": {
-    "test": "find -name '*.js' | xargs jslint && mocha"
+    "test": "find mcts test -name '*.js' | xargs eslint && mocha"
   },
-  "author": "Dan Bravender"
+  "author": "Dan Bravender",
+  "engine": "node >= 4.0.0"
 }
