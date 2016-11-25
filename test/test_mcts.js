@@ -1,5 +1,9 @@
+// @flow
 /* eslint-env mocha */
 'use strict'
+
+declare function describe(name: string, test: any): void;
+declare function it(name: string, test: any): void;
 
 var _ = require('lodash')
 var assert = require('assert')
@@ -49,7 +53,13 @@ describe('mcts', function () {
     var summingdicegame = new SummingDiceGame()
     var mcts = new MCTS(summingdicegame, 100, 1)
     assert.equal(mcts.selectMove(), 2)
-    assert.equal(mcts.rootNode.getChildren()[0].randomNode, true)
+    var rootNode = mcts.rootNode
+    let children = rootNode ? rootNode.getChildren() : null
+    if (children) {
+      assert.equal(children[0].randomNode, true)
+    } else {
+      throw new Error('rootNode undefined')
+    }
   })
 })
 

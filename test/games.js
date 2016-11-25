@@ -1,8 +1,11 @@
+// @flow
 'use strict'
 
 var RandomSelection = require('../mcts/index.js').RandomSelection
 
 class SingleCellGame {
+  board: Array<?number>
+  currentPlayer: number
   constructor () {
     // First player to play always wins
     this.board = [null]
@@ -15,7 +18,7 @@ class SingleCellGame {
     return []
   }
 
-  performMove (move) {
+  performMove (move: number) {
     this.board[move] = 0
   }
 
@@ -29,6 +32,8 @@ class SingleCellGame {
 }
 
 class TwoCellGame {
+  board: Array<?number>
+  currentPlayer: number
   constructor () {
     // Player that plays in the 2nd cell always wins
     this.board = [null, null]
@@ -46,7 +51,7 @@ class TwoCellGame {
     return available
   }
 
-  performMove (move) {
+  performMove (move: number) {
     this.board[move] = this.currentPlayer
     this.currentPlayer += 1
     this.currentPlayer = this.currentPlayer % 2
@@ -61,7 +66,15 @@ class TwoCellGame {
   }
 }
 
+type TicTacToePlayer =
+| 'X'
+| 'O';
+
 class TicTacToeGame {
+  board: Array<Array<?TicTacToePlayer>>
+  boardScore: Array<Array<number>>
+  winningScores: Array<number>
+  currentPlayer: TicTacToePlayer
   constructor () {
     this.board = [[null, null, null],
                   [null, null, null],
@@ -91,7 +104,7 @@ class TicTacToeGame {
     return available
   }
 
-  performMove (move) {
+  performMove (move: Array<number>) {
     this.board[move[0]][move[1]] = this.currentPlayer
     this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X'
   }
@@ -105,7 +118,7 @@ class TicTacToeGame {
     var playerScores = {X: 0, O: 0}
     for (let y = 0; y < 3; y += 1) {
       for (let x = 0; x < 3; x += 1) {
-        if (this.board[y][x] !== null) {
+        if (this.board[y][x] != null) {
           playerScores[this.board[y][x]] += this.boardScore[y][x]
         }
       }
@@ -123,6 +136,10 @@ class TicTacToeGame {
 }
 
 class SummingDiceGame {
+  currentPlayer: number
+  round: number
+  score: number
+  diceToRoll: number
   constructor () {
     this.currentPlayer = 1
     this.round = 0
@@ -151,7 +168,7 @@ class SummingDiceGame {
     return 1
   }
 
-  performMove (move) {
+  performMove (move: number) {
     switch (this.round) {
       case 0:
         this.diceToRoll = move
