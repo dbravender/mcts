@@ -14,19 +14,23 @@ class Node {
     this.mcts = mcts;
     this.parent = parent;
     this.move = move;
-    this.wins = 0;
+    this.wins = {};
     this.visits = 0;
     this.children = null;
     this.depth = depth || 0;
     this.randomNode = false;
   }
 
-  getUCB1() {
-    if (this.parent == null) {
+  getUCB1(player) {
+    let scorePerVisit = 0;
+    // always visit unvisited nodes first
+    if (this.visits == 0) return Infinity;
+    if (!this.parent) {
       return 0;
     }
+    scorePerVisit = (this.wins[player] || 0) / this.visits;
     // See https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation
-    return this.wins / this.visits + Math.sqrt(2 * Math.log(this.parent.visits) / this.visits);
+    return scorePerVisit + Math.sqrt(2 * Math.log(this.parent.visits) / this.visits);
   }
 
   getChildren() {
@@ -66,10 +70,8 @@ class MCTS {
     var self = this;
     this.game = game;
     this.nodeSort = function (node) {
-      if (node.parent.game.getCurrentPlayer() === self.player) {
-        return node.getUCB1();
-      }
-      return -node.visits;
+      if (node.parent) return node.getUCB1(node.parent.game.getCurrentPlayer());
+      return 0;
     };
     this.rounds = rounds || 1000;
     this.player = player || 0;
@@ -85,11 +87,10 @@ class MCTS {
         currentNode = currentNode.nextMove();
         currentNode.visits += 1;
       }
-      if (this.player === currentNode.getWinner()) {
-        while (currentNode.parent) {
-          currentNode.wins += 1;
-          currentNode = currentNode.parent;
-        }
+      let winner = currentNode.getWinner();
+      while (currentNode) {
+        currentNode.wins[winner] = (currentNode.wins[winner] || 0) + 1;
+        currentNode = currentNode.parent;
       }
     }
     return _(this.rootNode.getChildren()).sortBy('visits').last().move;

@@ -19,7 +19,7 @@
     "mocha": "^2.2.1"
   },
   "scripts": {
-    "test": "mocha --compilers js:babel-register"
+    "test": "babel src -d mcts && flow && mocha --compilers js:babel-register"
   },
   "author": "Dan Bravender",
   "engine": "node >= 4.0.0"
