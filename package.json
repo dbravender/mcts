@@ -1,6 +1,6 @@
 {
   "name": "mcts",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Monte Carlo Tree Search library",
   "repository": "https://github.com/dbravender/mcts",
   "main": "mcts/index.js",
