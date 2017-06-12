@@ -1,12 +1,10 @@
 {
   "name": "mcts",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Monte Carlo Tree Search library",
   "repository": "https://github.com/dbravender/mcts",
   "main": "mcts/index.js",
   "dependencies": {
-    "flow": "^0.2.3",
-    "flow-bin": "^0.36.0",
     "lodash": "^3.5.0"
   },
   "devDependencies": {
@@ -16,7 +14,9 @@
     "eslint-config-standard": "^6.0.0",
     "eslint-plugin-promise": "^2.0.1",
     "eslint-plugin-standard": "^2.0.0",
-    "mocha": "^2.2.1"
+    "mocha": "^2.2.1",
+    "flow": "^0.2.3",
+    "flow-bin": "^0.36.0"
   },
   "scripts": {
     "test": "babel src -d mcts && flow && mocha --compilers js:babel-register"
