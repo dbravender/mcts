@@ -1,6 +1,6 @@
 /**
  * Modern TypeScript implementation of Monte Carlo Tree Search (MCTS)
- * with efficient mutable game state instead of cloning.
+ * Clone game once per simulation, then apply moves forward.
  */
 
 export class RandomSelection<T> {
@@ -10,9 +10,9 @@ export class RandomSelection<T> {
 export interface Game<TMove = unknown, TPlayer = unknown> {
   getPossibleMoves(): readonly TMove[] | RandomSelection<TMove>;
   performMove(move: TMove): void;
-  undoMove(move: TMove): void;
   getCurrentPlayer(): TPlayer;
   getWinner(): TPlayer | null;
+  clone(): Game<TMove, TPlayer>;
 }
 
 type PlayerScore = Record<string, number>;
@@ -22,13 +22,10 @@ class Node<TMove, TPlayer> {
   public visits = 0;
   public children: Node<TMove, TPlayer>[] | null = null;
   public randomNode = false;
-  private moveApplied = false;
 
   constructor(
-    public readonly game: Game<TMove, TPlayer>,
     public readonly parent: Node<TMove, TPlayer> | null,
     public readonly move: TMove | null,
-    public readonly depth: number,
     private readonly mcts: MCTS<TMove, TPlayer>
   ) {}
 
@@ -48,12 +45,9 @@ class Node<TMove, TPlayer> {
     );
   }
 
-  public getChildren(): Node<TMove, TPlayer>[] {
-    // Always apply the move when getting children, even if cached
-    this.applyMove();
-
+  public getChildren(game: Game<TMove, TPlayer>): Node<TMove, TPlayer>[] {
     if (this.children === null) {
-      const movesResult = this.game.getPossibleMoves();
+      const movesResult = game.getPossibleMoves();
       let moves: readonly TMove[];
 
       if (movesResult instanceof RandomSelection) {
@@ -63,28 +57,13 @@ class Node<TMove, TPlayer> {
         moves = movesResult;
       }
 
-      this.children = moves.map(
-        (move) =>
-          new Node<TMove, TPlayer>(
-            this.game,
-            this,
-            move,
-            this.depth + 1,
-            this.mcts
-          )
-      );
+      this.children = moves.map((move) => new Node<TMove, TPlayer>(this, move, this.mcts));
     }
     return this.children;
   }
 
-  public getWinner(): TPlayer | null {
-    // Forces the move to be performed
-    this.getChildren();
-    return this.game.getWinner();
-  }
-
-  public nextMove(): Node<TMove, TPlayer> {
-    const children = this.getChildren();
+  public nextMove(game: Game<TMove, TPlayer>): Node<TMove, TPlayer> {
+    const children = this.getChildren(game);
 
     if (children.length === 0) {
       throw new Error("Cannot get next move from a node with no children");
@@ -102,26 +81,12 @@ class Node<TMove, TPlayer> {
     }
 
     // Sort by UCB1 score and pick the best
-    shuffled.sort((a, b) => this.mcts.compareNodes(a, b));
+    shuffled.sort((a, b) => this.mcts.compareNodes(a, b, game));
     const best = shuffled[shuffled.length - 1];
     if (best === undefined) {
       throw new Error("No children available after sorting");
     }
     return best;
-  }
-
-  public applyMove(): void {
-    if (!this.moveApplied && this.move !== null) {
-      this.game.performMove(this.move);
-      this.moveApplied = true;
-    }
-  }
-
-  public undoMove(): void {
-    if (this.moveApplied && this.move !== null) {
-      this.game.undoMove(this.move);
-      this.moveApplied = false;
-    }
   }
 
   private shuffle<T>(array: T[]): T[] {
@@ -144,11 +109,11 @@ export class MCTS<TMove = unknown, TPlayer = unknown> {
   private readonly rounds: number;
 
   constructor(
-    game: Game<TMove, TPlayer>,
+    private readonly game: Game<TMove, TPlayer>,
     rounds?: number
   ) {
     this.rounds = rounds ?? 1000;
-    this.rootNode = new Node<TMove, TPlayer>(game, null, null, 0, this);
+    this.rootNode = new Node<TMove, TPlayer>(null, null, this);
   }
 
   public selectMove(): TMove {
@@ -156,7 +121,7 @@ export class MCTS<TMove = unknown, TPlayer = unknown> {
       this.runSimulation();
     }
 
-    const children = this.rootNode.getChildren();
+    const children = this.rootNode.getChildren(this.game);
     if (children.length === 0) {
       throw new Error("No possible moves available");
     }
@@ -181,7 +146,7 @@ export class MCTS<TMove = unknown, TPlayer = unknown> {
   }
 
   public getStats(): { move: TMove; visits: number; wins: PlayerScore }[] {
-    const children = this.rootNode.getChildren();
+    const children = this.rootNode.getChildren(this.game);
     return children.map((child) => {
       if (child.move === null) {
         throw new Error("Child node has null move");
@@ -194,26 +159,38 @@ export class MCTS<TMove = unknown, TPlayer = unknown> {
     });
   }
 
-  public compareNodes(a: Node<TMove, TPlayer>, b: Node<TMove, TPlayer>): number {
+  public compareNodes(
+    a: Node<TMove, TPlayer>,
+    b: Node<TMove, TPlayer>,
+    game: Game<TMove, TPlayer>
+  ): number {
     if (a.parent === null) return 0;
-    const currentPlayer = a.parent.game.getCurrentPlayer();
+    const currentPlayer = game.getCurrentPlayer();
     return a.getUCB1(currentPlayer) - b.getUCB1(currentPlayer);
   }
 
   private runSimulation(): void {
+    // Clone the game once for this simulation
+    const simGame = this.game.clone();
+
     const path: Node<TMove, TPlayer>[] = [this.rootNode];
     let currentNode = this.rootNode;
     currentNode.visits++;
 
     // Selection: traverse down the tree using UCB1
-    while (currentNode.getChildren().length > 0) {
-      currentNode = currentNode.nextMove();
+    while (currentNode.getChildren(simGame).length > 0) {
+      currentNode = currentNode.nextMove(simGame);
       currentNode.visits++;
       path.push(currentNode);
+
+      // Apply the move to our simulation game
+      if (currentNode.move !== null) {
+        simGame.performMove(currentNode.move);
+      }
     }
 
     // Get the winner at this leaf node
-    const winner = currentNode.getWinner();
+    const winner = simGame.getWinner();
 
     // Backpropagation: update wins up the tree
     for (const node of path) {
@@ -223,12 +200,6 @@ export class MCTS<TMove = unknown, TPlayer = unknown> {
       }
     }
 
-    // Undo all moves to restore game state
-    for (let i = path.length - 1; i >= 0; i--) {
-      const node = path[i];
-      if (node !== undefined) {
-        node.undoMove();
-      }
-    }
+    // No need to undo - just discard the cloned game
   }
 }

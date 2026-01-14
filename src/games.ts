@@ -19,16 +19,18 @@ export class SingleCellGame implements Game<number, number> {
     this.board[move] = 0;
   }
 
-  public undoMove(move: number): void {
-    this.board[move] = null;
-  }
-
   public getCurrentPlayer(): number {
     return this.currentPlayer;
   }
 
   public getWinner(): number | null {
     return this.board[0] ?? null;
+  }
+
+  public clone(): SingleCellGame {
+    const cloned = new SingleCellGame();
+    cloned.board = [...this.board];
+    return cloned;
   }
 }
 
@@ -51,17 +53,19 @@ export class TwoCellGame implements Game<number, number> {
     this.currentPlayer = (this.currentPlayer + 1) % 2;
   }
 
-  public undoMove(move: number): void {
-    this.board[move] = null;
-    this.currentPlayer = (this.currentPlayer + 1) % 2;
-  }
-
   public getCurrentPlayer(): number {
     return this.currentPlayer;
   }
 
   public getWinner(): number | null {
     return this.board[1] ?? null;
+  }
+
+  public clone(): TwoCellGame {
+    const cloned = new TwoCellGame();
+    cloned.board = [...this.board];
+    cloned.currentPlayer = this.currentPlayer;
+    return cloned;
   }
 }
 
@@ -112,16 +116,6 @@ export class TicTacToeGame
     this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
   }
 
-  public undoMove(move: TicTacToeMove): void {
-    const [y, x] = move;
-    const row = this.board[y];
-    if (row === undefined) {
-      throw new Error(`Invalid row: ${y}`);
-    }
-    row[x] = null;
-    this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
-  }
-
   public getCurrentPlayer(): TicTacToePlayer {
     return this.currentPlayer;
   }
@@ -150,6 +144,13 @@ export class TicTacToeGame
     }
 
     return null;
+  }
+
+  public clone(): TicTacToeGame {
+    const cloned = new TicTacToeGame();
+    cloned.board = this.board.map((row) => [...row]);
+    cloned.currentPlayer = this.currentPlayer;
+    return cloned;
   }
 }
 
@@ -196,22 +197,18 @@ export class SummingDiceGame implements Game<DiceMove, number> {
     this.round++;
   }
 
-  public undoMove(move: DiceMove): void {
-    this.round--;
-    switch (this.round) {
-      case 0:
-        this.diceToRoll = 0;
-        break;
-      case 1:
-        this.score -= move;
-        break;
-    }
-  }
-
   public getWinner(): number | null {
     if (this.score > 5) {
       return 1;
     }
     return null;
+  }
+
+  public clone(): SummingDiceGame {
+    const cloned = new SummingDiceGame();
+    cloned.round = this.round;
+    cloned.score = this.score;
+    cloned.diceToRoll = this.diceToRoll;
+    return cloned;
   }
 }
