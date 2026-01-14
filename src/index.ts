@@ -31,18 +31,19 @@ class Node<TMove, TPlayer> {
 
   public getUCB1(player: TPlayer): number {
     // Always visit unvisited nodes first
-    if (this.visits === 0) return Infinity;
-    if (this.parent === null) return 0;
+    if (this.visits === 0) {
+      return Number.POSITIVE_INFINITY;
+    }
+    if (this.parent === null) {
+      return 0;
+    }
 
     const wins = this.wins[String(player)] ?? 0;
     const scorePerVisit = wins / this.visits;
 
     // UCB1 formula: exploitation + exploration
     // See https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation
-    return (
-      scorePerVisit +
-      Math.sqrt((2 * Math.log(this.parent.visits)) / this.visits)
-    );
+    return scorePerVisit + Math.sqrt((2 * Math.log(this.parent.visits)) / this.visits);
   }
 
   public getChildren(game: Game<TMove, TPlayer>): Node<TMove, TPlayer>[] {
@@ -66,7 +67,7 @@ class Node<TMove, TPlayer> {
     const children = this.getChildren(game);
 
     if (children.length === 0) {
-      throw new Error("Cannot get next move from a node with no children");
+      throw new Error('Cannot get next move from a node with no children');
     }
 
     // Shuffle to randomize equal nodes
@@ -75,7 +76,7 @@ class Node<TMove, TPlayer> {
     if (this.randomNode) {
       const last = shuffled[shuffled.length - 1];
       if (last === undefined) {
-        throw new Error("No children available for random selection");
+        throw new Error('No children available for random selection');
       }
       return last;
     }
@@ -84,7 +85,7 @@ class Node<TMove, TPlayer> {
     shuffled.sort((a, b) => this.mcts.compareNodes(a, b, game));
     const best = shuffled[shuffled.length - 1];
     if (best === undefined) {
-      throw new Error("No children available after sorting");
+      throw new Error('No children available after sorting');
     }
     return best;
   }
@@ -123,13 +124,13 @@ export class MCTS<TMove = unknown, TPlayer = unknown> {
 
     const children = this.rootNode.getChildren(this.game);
     if (children.length === 0) {
-      throw new Error("No possible moves available");
+      throw new Error('No possible moves available');
     }
 
     // Select the child with the most visits
     let bestChild = children[0];
     if (bestChild === undefined) {
-      throw new Error("No children available");
+      throw new Error('No children available');
     }
 
     for (const child of children) {
@@ -139,7 +140,7 @@ export class MCTS<TMove = unknown, TPlayer = unknown> {
     }
 
     if (bestChild.move === null) {
-      throw new Error("Best child has null move");
+      throw new Error('Best child has null move');
     }
 
     return bestChild.move;
@@ -149,7 +150,7 @@ export class MCTS<TMove = unknown, TPlayer = unknown> {
     const children = this.rootNode.getChildren(this.game);
     return children.map((child) => {
       if (child.move === null) {
-        throw new Error("Child node has null move");
+        throw new Error('Child node has null move');
       }
       return {
         move: child.move,
@@ -164,7 +165,9 @@ export class MCTS<TMove = unknown, TPlayer = unknown> {
     b: Node<TMove, TPlayer>,
     game: Game<TMove, TPlayer>
   ): number {
-    if (a.parent === null) return 0;
+    if (a.parent === null) {
+      return 0;
+    }
     const currentPlayer = game.getCurrentPlayer();
     return a.getUCB1(currentPlayer) - b.getUCB1(currentPlayer);
   }

@@ -2,14 +2,9 @@
  * Test suite for MCTS implementation
  */
 
-import assert from 'assert';
+import assert from 'node:assert';
+import { SingleCellGame, SummingDiceGame, TicTacToeGame, TwoCellGame } from './games';
 import { MCTS, RandomSelection } from './index';
-import {
-  SingleCellGame,
-  TwoCellGame,
-  TicTacToeGame,
-  SummingDiceGame,
-} from './games';
 
 describe('mcts', () => {
   it('should return one option when only one is returned for a state', () => {

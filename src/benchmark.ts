@@ -2,13 +2,8 @@
  * Benchmark suite for MCTS performance measurement
  */
 
+import { SingleCellGame, SummingDiceGame, TicTacToeGame, TwoCellGame } from './games';
 import { MCTS } from './index';
-import {
-  SingleCellGame,
-  TwoCellGame,
-  TicTacToeGame,
-  SummingDiceGame,
-} from './games';
 
 interface BenchmarkResult {
   gameName: string;
@@ -77,26 +72,17 @@ function printResults(results: BenchmarkResult[]): void {
     console.log(`Game: ${result.gameName}`);
     console.log(`  Rounds per decision: ${formatNumber(result.rounds)}`);
     console.log(`  Average time: ${formatDecimal(result.totalTimeMs)} ms`);
-    console.log(
-      `  Simulations/second: ${formatNumber(result.simulationsPerSecond)}`
-    );
-    console.log(
-      `  Moves evaluated/second: ${formatNumber(result.movesPerSecond)}`
-    );
+    console.log(`  Simulations/second: ${formatNumber(result.simulationsPerSecond)}`);
+    console.log(`  Moves evaluated/second: ${formatNumber(result.movesPerSecond)}`);
     console.log();
   }
 
   // Summary
-  const totalMoves = results.reduce(
-    (sum, result) => sum + result.movesPerSecond,
-    0
-  );
+  const totalMoves = results.reduce((sum, result) => sum + result.movesPerSecond, 0);
   const avgMovesPerSecond = totalMoves / results.length;
 
   console.log('=== Summary ===');
-  console.log(
-    `Average moves/second across all games: ${formatNumber(avgMovesPerSecond)}`
-  );
+  console.log(`Average moves/second across all games: ${formatNumber(avgMovesPerSecond)}`);
   console.log();
 }
 
@@ -109,15 +95,21 @@ function main(): void {
   results.push(benchmark('SingleCellGame', () => new MCTS(new SingleCellGame(), 1000), 1000));
   results.push(benchmark('TwoCellGame', () => new MCTS(new TwoCellGame(), 1000), 1000));
   results.push(benchmark('TicTacToe', () => new MCTS(new TicTacToeGame(), 1000), 1000));
-  results.push(benchmark('TicTacToe (complex)', () => {
-    const game = new TicTacToeGame();
-    game.board = [
-      ['O', 'O', null],
-      ['X', 'X', null],
-      ['O', 'O', null],
-    ];
-    return new MCTS(game, 1000);
-  }, 1000));
+  results.push(
+    benchmark(
+      'TicTacToe (complex)',
+      () => {
+        const game = new TicTacToeGame();
+        game.board = [
+          ['O', 'O', null],
+          ['X', 'X', null],
+          ['O', 'O', null],
+        ];
+        return new MCTS(game, 1000);
+      },
+      1000
+    )
+  );
   results.push(benchmark('SummingDice', () => new MCTS(new SummingDiceGame(), 1000), 1000));
 
   // High-intensity benchmarks
@@ -133,4 +125,4 @@ if (require.main === module) {
   main();
 }
 
-export { benchmark, BenchmarkResult };
+export { benchmark, type BenchmarkResult };

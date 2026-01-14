@@ -2,7 +2,7 @@
  * Example game implementations for MCTS testing
  */
 
-import { RandomSelection, Game } from './index';
+import { type Game, RandomSelection } from './index';
 
 export class SingleCellGame implements Game<number, number> {
   private board: (number | null)[] = [null];
@@ -72,9 +72,7 @@ export class TwoCellGame implements Game<number, number> {
 type TicTacToePlayer = 'X' | 'O';
 type TicTacToeMove = readonly [number, number];
 
-export class TicTacToeGame
-  implements Game<TicTacToeMove, TicTacToePlayer>
-{
+export class TicTacToeGame implements Game<TicTacToeMove, TicTacToePlayer> {
   public board: (TicTacToePlayer | null)[][] = [
     [null, null, null],
     [null, null, null],
@@ -174,8 +172,8 @@ export class SummingDiceGame implements Game<DiceMove, number> {
           return new RandomSelection([1, 2, 3, 4, 5, 6]);
         }
         return new RandomSelection([
-          2, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 8, 8,
-          8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 11, 11, 12,
+          2, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 9,
+          10, 10, 10, 11, 11, 12,
         ]);
     }
     return [];
