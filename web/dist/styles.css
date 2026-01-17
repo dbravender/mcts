@@ -266,14 +266,17 @@ body {
   border-color: var(--danger);
 }
 
-/* Win rate indicator overlay */
-.win-rate-indicator {
+/* Visit count indicator overlay */
+.visit-indicator {
   position: absolute;
   bottom: 2px;
   right: 4px;
-  font-size: 0.6rem;
-  color: var(--text-muted);
-  font-weight: 600;
+  font-size: 0.55rem;
+  color: var(--text-secondary);
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 1px 4px;
+  border-radius: 3px;
 }
 
 /* Game Board - 4 in a Row */
@@ -412,54 +415,30 @@ body {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 16px;
-  padding: 20px;
+  padding: 15px;
   overflow-x: auto;
+  min-height: 200px;
 }
 
-.tree-node {
-  padding: 8px 12px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid var(--card-border);
-  border-radius: 8px;
-  margin: 4px 0;
-  font-size: 0.85rem;
+.tree-container svg {
+  display: block;
+  margin: 0 auto;
 }
 
-.tree-node.best {
-  border-color: var(--success);
-  background: rgba(34, 197, 94, 0.1);
+/* D3 Tree Node styles */
+.tree-container .link {
+  fill: none;
+  stroke: #475569;
+  stroke-opacity: 0.6;
 }
 
-.tree-node .move {
-  font-weight: 600;
-  color: var(--primary);
+.tree-container .node circle {
+  cursor: pointer;
 }
 
-.tree-node .stats {
-  color: var(--text-muted);
-  font-size: 0.8rem;
-}
-
-.tree-level {
-  margin-left: 20px;
-  border-left: 2px solid var(--card-border);
-  padding-left: 15px;
-}
-
-/* Win rate bar */
-.win-rate-bar {
-  height: 4px;
-  background: var(--card-border);
-  border-radius: 2px;
-  margin-top: 6px;
-  overflow: hidden;
-}
-
-.win-rate-bar .fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--danger), var(--warning), var(--success));
-  border-radius: 2px;
-  transition: width 0.3s ease;
+.tree-container .node text {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  pointer-events: none;
 }
 
 /* Buttons */

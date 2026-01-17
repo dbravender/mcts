@@ -1,5 +1,6 @@
 import { MCTS, type TreeNodeInfo } from '../../src/index';
-import { Connect4Game, type Connect4Move, type Connect4Player } from '../../src/games';
+import { Connect4Game, type Connect4Move } from '../../src/games';
+import { convertToD3Tree, renderD3Tree } from './tree-viz';
 
 // DOM elements
 let boardEl: HTMLElement;
@@ -83,7 +84,9 @@ function updateBoardDisplay(): void {
     if (winningCells) {
       for (const { row, col } of winningCells) {
         const cell = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-        if (cell) cell.classList.add('winner');
+        if (cell) {
+          cell.classList.add('winner');
+        }
       }
     }
   }
@@ -91,10 +94,14 @@ function updateBoardDisplay(): void {
 
 // Handle clicking a column
 function handleCellClick(col: number): void {
-  if (!isPlayerTurn || gameOver) return;
+  if (!isPlayerTurn || gameOver) {
+    return;
+  }
 
   const possibleMoves = game.getPossibleMoves();
-  if (!possibleMoves.includes(col as Connect4Move)) return;
+  if (!possibleMoves.includes(col as Connect4Move)) {
+    return;
+  }
 
   // Make the move with drop animation
   const targetRow = findDropRow(col);
@@ -142,6 +149,14 @@ function findDropRow(col: number): number | null {
     }
   }
   return null;
+}
+
+// Format move for display in tree
+function formatMove(move: Connect4Move | null): string {
+  if (move === null) {
+    return 'Root';
+  }
+  return `Col ${move + 1}`;
 }
 
 // AI makes a move with visualization
@@ -223,9 +238,11 @@ async function doAIMove(): Promise<void> {
   simCounterEl.textContent = '';
 }
 
-// Highlight column indicators based on AI evaluation
+// Highlight column indicators based on AI evaluation (by visits)
 function highlightColumns(stats: { move: Connect4Move; visits: number; winRate: number }[]): void {
-  if (stats.length === 0) return;
+  if (stats.length === 0) {
+    return;
+  }
 
   const maxVisits = Math.max(...stats.map((s) => s.visits));
 
@@ -237,7 +254,9 @@ function highlightColumns(stats: { move: Connect4Move; visits: number; winRate: 
 
   for (const stat of stats) {
     const indicator = columnIndicatorsEl.querySelector(`[data-col="${stat.move}"]`);
-    if (!indicator) continue;
+    if (!indicator) {
+      continue;
+    }
 
     const ratio = stat.visits / maxVisits;
     if (ratio > 0.6) {
@@ -258,42 +277,10 @@ function clearHighlights(): void {
   });
 }
 
-// Update the tree visualization
+// Update the tree visualization using D3
 function updateTreeVisualization(tree: TreeNodeInfo<Connect4Move>): void {
-  const html = renderTreeNode(tree, 0, true);
-  treeContainerEl.innerHTML = html;
-}
-
-// Render a tree node recursively
-function renderTreeNode(node: TreeNodeInfo<Connect4Move>, depth: number, isRoot: boolean): string {
-  if (depth > 2) return '';
-
-  const moveStr = isRoot ? 'Root' : node.move !== null ? `Column: ${node.move + 1}` : 'Unknown';
-
-  const winRatePercent = Math.round(node.winRate * 100);
-  const isBest = !isRoot && depth === 1 && node.children.length === 0 && node.visits > 0;
-
-  let html = `
-    <div class="tree-node ${isBest ? 'best' : ''}">
-      <span class="move">${moveStr}</span>
-      <span class="stats"> | Visits: ${node.visits} | Win Rate: ${winRatePercent}%</span>
-      <div class="win-rate-bar">
-        <div class="fill" style="width: ${winRatePercent}%"></div>
-      </div>
-    </div>
-  `;
-
-  if (node.children.length > 0 && depth < 2) {
-    html += '<div class="tree-level">';
-    // Sort children by visits and show top ones
-    const sortedChildren = [...node.children].sort((a, b) => b.visits - a.visits).slice(0, 5);
-    for (const child of sortedChildren) {
-      html += renderTreeNode(child, depth + 1, false);
-    }
-    html += '</div>';
-  }
-
-  return html;
+  const d3Tree = convertToD3Tree(tree, formatMove, 3);
+  renderD3Tree(treeContainerEl, d3Tree);
 }
 
 // Update simulation counter
