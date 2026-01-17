@@ -210,3 +210,162 @@ export class SummingDiceGame implements Game<DiceMove, number> {
     return cloned;
   }
 }
+
+// Connect 4 / 4 in a Row game implementation
+export type Connect4Player = 'Red' | 'Yellow';
+export type Connect4Move = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+export class Connect4Game implements Game<Connect4Move, Connect4Player> {
+  public static readonly ROWS = 6;
+  public static readonly COLS = 7;
+  public static readonly WIN_LENGTH = 4;
+
+  // Board stored as rows from bottom to top, columns left to right
+  public board: (Connect4Player | null)[][] = [];
+  private currentPlayer: Connect4Player = 'Red';
+  private lastMove: { row: number; col: number } | null = null;
+
+  constructor() {
+    this.initBoard();
+  }
+
+  private initBoard(): void {
+    this.board = [];
+    for (let row = 0; row < Connect4Game.ROWS; row++) {
+      this.board.push(new Array(Connect4Game.COLS).fill(null));
+    }
+  }
+
+  public getPossibleMoves(): Connect4Move[] {
+    if (this.getWinner() !== null) {
+      return [];
+    }
+
+    const moves: Connect4Move[] = [];
+    for (let col = 0; col < Connect4Game.COLS; col++) {
+      // Check if the top row of this column is empty
+      const topRow = this.board[Connect4Game.ROWS - 1];
+      if (topRow && topRow[col] === null) {
+        moves.push(col as Connect4Move);
+      }
+    }
+    return moves;
+  }
+
+  public performMove(move: Connect4Move): void {
+    // Find the lowest empty row in this column
+    for (let row = 0; row < Connect4Game.ROWS; row++) {
+      const boardRow = this.board[row];
+      if (boardRow && boardRow[move] === null) {
+        boardRow[move] = this.currentPlayer;
+        this.lastMove = { row, col: move };
+        this.currentPlayer = this.currentPlayer === 'Red' ? 'Yellow' : 'Red';
+        return;
+      }
+    }
+    throw new Error(`Column ${move} is full`);
+  }
+
+  public getCurrentPlayer(): Connect4Player {
+    return this.currentPlayer;
+  }
+
+  public getLastMove(): { row: number; col: number } | null {
+    return this.lastMove;
+  }
+
+  public getWinner(): Connect4Player | null {
+    // Check all directions from each cell
+    const directions: [number, number][] = [
+      [0, 1], // horizontal
+      [1, 0], // vertical
+      [1, 1], // diagonal down-right
+      [1, -1], // diagonal down-left
+    ];
+
+    for (let row = 0; row < Connect4Game.ROWS; row++) {
+      for (let col = 0; col < Connect4Game.COLS; col++) {
+        const cell = this.board[row]?.[col];
+        if (cell === null || cell === undefined) {
+          continue;
+        }
+
+        for (const [dr, dc] of directions) {
+          if (this.checkWinFrom(row, col, dr, dc, cell)) {
+            return cell;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  private checkWinFrom(
+    startRow: number,
+    startCol: number,
+    dr: number,
+    dc: number,
+    player: Connect4Player
+  ): boolean {
+    for (let i = 0; i < Connect4Game.WIN_LENGTH; i++) {
+      const row = startRow + i * dr;
+      const col = startCol + i * dc;
+      if (
+        row < 0 ||
+        row >= Connect4Game.ROWS ||
+        col < 0 ||
+        col >= Connect4Game.COLS ||
+        this.board[row]?.[col] !== player
+      ) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // Get the winning line cells (if any)
+  public getWinningCells(): { row: number; col: number }[] | null {
+    const directions: [number, number][] = [
+      [0, 1],
+      [1, 0],
+      [1, 1],
+      [1, -1],
+    ];
+
+    for (let row = 0; row < Connect4Game.ROWS; row++) {
+      for (let col = 0; col < Connect4Game.COLS; col++) {
+        const cell = this.board[row]?.[col];
+        if (cell === null || cell === undefined) {
+          continue;
+        }
+
+        for (const [dr, dc] of directions) {
+          if (this.checkWinFrom(row, col, dr, dc, cell)) {
+            const cells: { row: number; col: number }[] = [];
+            for (let i = 0; i < Connect4Game.WIN_LENGTH; i++) {
+              cells.push({ row: row + i * dr, col: col + i * dc });
+            }
+            return cells;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  public isBoardFull(): boolean {
+    const topRow = this.board[Connect4Game.ROWS - 1];
+    if (!topRow) {
+      return false;
+    }
+    return topRow.every((cell) => cell !== null);
+  }
+
+  public clone(): Connect4Game {
+    const cloned = new Connect4Game();
+    cloned.board = this.board.map((row) => [...row]);
+    cloned.currentPlayer = this.currentPlayer;
+    cloned.lastMove = this.lastMove ? { ...this.lastMove } : null;
+    return cloned;
+  }
+}
