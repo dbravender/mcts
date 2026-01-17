@@ -1,26 +1,48 @@
 {
   "name": "mcts",
-  "version": "0.0.8",
-  "description": "Monte Carlo Tree Search library",
+  "version": "0.1.0",
+  "description": "Modern TypeScript Monte Carlo Tree Search library with zero-copy optimization",
   "repository": "https://github.com/dbravender/mcts",
-  "main": "mcts/index.js",
-  "dependencies": {
-    "lodash": "^3.5.0"
-  },
-  "devDependencies": {
-    "babel-cli": "^6.18.0",
-    "babel-plugin-transform-flow-strip-types": "^6.18.0",
-    "eslint": "^3.5.0",
-    "eslint-config-standard": "^6.0.0",
-    "eslint-plugin-promise": "^2.0.1",
-    "eslint-plugin-standard": "^2.0.0",
-    "mocha": "^2.2.1",
-    "flow": "^0.2.3",
-    "flow-bin": "^0.36.0"
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
   },
   "scripts": {
-    "test": "babel src -d mcts && flow && mocha --compilers js:babel-register"
+    "build": "tsc",
+    "test": "npm run build && mocha dist/test.js",
+    "benchmark": "npm run build && node dist/benchmark.js",
+    "lint": "biome check src/ web/src/",
+    "lint:fix": "biome check --write src/ web/src/",
+    "format": "biome format --write src/ web/src/",
+    "check": "biome check --write src/ web/src/",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist web/dist",
+    "ci": "npm run lint && npm run typecheck && npm run test",
+    "prepublishOnly": "npm run clean && npm run build && npm test",
+    "build:web": "node web/build.mjs",
+    "serve": "npm run build:web && npx http-server web/dist -o"
   },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.11",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.11.5",
+    "esbuild": "^0.20.0",
+    "mocha": "^10.2.0",
+    "typescript": "^5.3.3"
+  },
+  "keywords": [
+    "mcts",
+    "monte-carlo",
+    "tree-search",
+    "game-ai",
+    "ai",
+    "algorithm",
+    "typescript"
+  ],
   "author": "Dan Bravender",
-  "engine": "node >= 4.0.0"
+  "license": "MIT"
 }

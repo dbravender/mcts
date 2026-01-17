@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/index.ts"],
+  "sourcesContent": ["// Landing page - minimal JavaScript needed\n// Just for any interactive elements on the home page\n\ndocument.addEventListener('DOMContentLoaded', () => {\n  console.log('MCTS Game Arena loaded');\n});\n"],
+  "mappings": ";;;AAGA,WAAS,iBAAiB,oBAAoB,MAAM;AAClD,YAAQ,IAAI,wBAAwB;AAAA,EACtC,CAAC;",
+  "names": []
+}

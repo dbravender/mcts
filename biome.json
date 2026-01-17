@@ -1,0 +1,116 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+	"files": {
+		"includes": ["src/**/*.ts"]
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "space",
+		"indentWidth": 2,
+		"lineWidth": 100
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"style": {
+				"recommended": true,
+				"noNonNullAssertion": "error",
+				"useNamingConvention": {
+					"level": "error",
+					"options": {
+						"strictCase": false
+					}
+				},
+				"useConst": "error",
+				"useDefaultParameterLast": "error",
+				"useExponentiationOperator": "error",
+				"useNumberNamespace": "error",
+				"useBlockStatements": "error",
+				"useCollapsedElseIf": "error",
+				"useConsistentArrayType": "error",
+				"useDefaultSwitchClause": "off",
+				"useEnumInitializers": "error",
+				"useImportType": "error",
+				"useExportType": "error",
+				"noParameterAssign": "error"
+			},
+			"complexity": {
+				"recommended": true,
+				"noExcessiveCognitiveComplexity": {
+					"level": "error",
+					"options": {
+						"maxAllowedComplexity": 20
+					}
+				},
+				"noForEach": "warn",
+				"useLiteralKeys": "error",
+				"useSimplifiedLogicExpression": "error"
+			},
+			"correctness": {
+				"recommended": true,
+				"noNodejsModules": "off",
+				"noUndeclaredDependencies": "off",
+				"noUnusedVariables": "error",
+				"noUnusedImports": "error",
+				"useHookAtTopLevel": "error"
+			},
+			"nursery": {
+				"recommended": true,
+				"useSortedClasses": "error"
+			},
+			"performance": {
+				"recommended": true,
+				"noAccumulatingSpread": "error",
+				"noDelete": "error"
+			},
+			"security": {
+				"recommended": true,
+				"noDangerouslySetInnerHtml": "error"
+			},
+			"suspicious": {
+				"recommended": true,
+				"noConsole": "off",
+				"noDebugger": "error",
+				"noDoubleEquals": "error",
+				"noExplicitAny": "error",
+				"noImplicitAnyLet": "error",
+				"useAwait": "error"
+			}
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "single",
+			"semicolons": "always",
+			"trailingCommas": "es5"
+		}
+	},
+	"overrides": [
+		{
+			"includes": ["src/games.ts"],
+			"linter": {
+				"rules": {
+					"style": {
+						"useNamingConvention": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["src/index.ts"],
+			"linter": {
+				"rules": {
+					"style": {
+						"useNamingConvention": "off"
+					}
+				}
+			}
+		}
+	]
+}

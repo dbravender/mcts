@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCTS Game Arena</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>MCTS Game Arena</h1>
+      <p>Play classic games against an AI powered by Monte Carlo Tree Search</p>
+    </header>
+
+    <nav class="nav">
+      <a href="index.html" class="nav-link active">Home</a>
+      <a href="tictactoe.html" class="nav-link">Tic Tac Toe</a>
+      <a href="fourinarow.html" class="nav-link">4 in a Row</a>
+    </nav>
+
+    <main>
+      <div class="card">
+        <h2>Welcome to the Arena!</h2>
+        <p>
+          Challenge yourself against a computer opponent that uses Monte Carlo Tree Search (MCTS)
+          to find the best moves. Watch as the AI thinks through thousands of simulations,
+          and see the search tree visualization to understand how it makes decisions.
+        </p>
+      </div>
+
+      <div class="game-grid">
+        <a href="tictactoe.html" class="game-card">
+          <span class="icon">&#10005;&#9675;</span>
+          <h3>Tic Tac Toe</h3>
+          <p>The classic 3x3 grid game. Get three in a row to win!</p>
+        </a>
+
+        <a href="fourinarow.html" class="game-card">
+          <span class="icon">&#9679;&#9679;&#9679;&#9679;</span>
+          <h3>4 in a Row</h3>
+          <p>Drop pieces into columns. Be the first to connect four!</p>
+        </a>
+      </div>
+
+      <div class="card">
+        <h2>Features</h2>
+        <ul style="color: var(--text-secondary); padding-left: 20px;">
+          <li style="margin: 10px 0;"><strong style="color: var(--primary);">Live Tree Visualization</strong> - Watch the AI explore possible moves in real-time</li>
+          <li style="margin: 10px 0;"><strong style="color: var(--secondary);">Move Highlighting</strong> - See which moves the AI considers strongest</li>
+          <li style="margin: 10px 0;"><strong style="color: var(--accent);">Adjustable Difficulty</strong> - Control how many simulations the AI runs</li>
+          <li style="margin: 10px 0;"><strong style="color: var(--success);">All Client-Side</strong> - Everything runs in your browser, no server needed</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>About MCTS</h2>
+        <p style="margin-bottom: 15px;">
+          Monte Carlo Tree Search is a powerful algorithm used in game AI. It works by:
+        </p>
+        <ol style="color: var(--text-secondary); padding-left: 20px;">
+          <li style="margin: 8px 0;"><strong>Selection</strong> - Navigate the tree using UCB1 formula to balance exploration and exploitation</li>
+          <li style="margin: 8px 0;"><strong>Expansion</strong> - Add new nodes for unexplored moves</li>
+          <li style="margin: 8px 0;"><strong>Simulation</strong> - Play out random games to estimate move quality</li>
+          <li style="margin: 8px 0;"><strong>Backpropagation</strong> - Update statistics up the tree based on simulation results</li>
+        </ol>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>Powered by <a href="https://github.com/dbravender/mcts">MCTS TypeScript Library</a></p>
+    </footer>
+  </div>
+
+  <script src="index.js"></script>
+</body>
+</html>
