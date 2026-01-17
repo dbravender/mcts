@@ -86,7 +86,7 @@ export class TicTacToeGame implements Game<TicTacToeMove, TicTacToePlayer> {
   ];
 
   private readonly winningScores = [7, 56, 448, 73, 146, 292, 273, 84];
-  private currentPlayer: TicTacToePlayer = 'X';
+  public currentPlayer: TicTacToePlayer = 'X';
 
   public getPossibleMoves(): TicTacToeMove[] {
     if (this.getWinner() !== null) {
