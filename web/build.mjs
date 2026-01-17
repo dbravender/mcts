@@ -1,15 +1,19 @@
 import * as esbuild from 'esbuild';
 import * as fs from 'fs';
 
-const distDir = 'docs';
+const docsDir = 'docs';
+const distDir = 'docs/examples';
 
-// Create dist directory
+// Create directories
+if (!fs.existsSync(docsDir)) {
+  fs.mkdirSync(docsDir, { recursive: true });
+}
 if (!fs.existsSync(distDir)) {
   fs.mkdirSync(distDir, { recursive: true });
 }
 
-// Add .nojekyll file to prevent Jekyll processing
-fs.writeFileSync(`${distDir}/.nojekyll`, '');
+// Add .nojekyll file to prevent Jekyll processing (at docs/ level)
+fs.writeFileSync(`${docsDir}/.nojekyll`, '');
 
 // Build each page's TypeScript
 const pages = ['index', 'tictactoe', 'fourinarow'];
@@ -41,4 +45,4 @@ for (const file of cssFiles) {
   fs.copyFileSync(`web/src/${file}`, `${distDir}/${file}`);
 }
 
-console.log('Build complete! Output in docs/');
+console.log('Build complete! Output in docs/examples/');
