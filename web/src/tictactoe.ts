@@ -1,8 +1,8 @@
-import { MCTS, type TreeNodeInfo, type PlayerScore } from '../../src/index';
+import { MCTS, type TreeNodeInfo } from '../../src/index';
 import { TicTacToeGame } from '../../src/games';
+import { convertToD3Tree, renderD3Tree } from './tree-viz';
 
 type TicTacToeMove = readonly [number, number];
-type TicTacToePlayer = 'X' | 'O';
 
 // DOM elements
 let boardEl: HTMLElement;
@@ -57,12 +57,23 @@ function updateBoardDisplay(): void {
     const value = game.board[row]?.[col];
 
     // Clear previous classes
-    cellEl.classList.remove('X', 'O', 'occupied', 'disabled', 'highlight-strong', 'highlight-medium', 'highlight-weak', 'winner');
+    cellEl.classList.remove(
+      'X',
+      'O',
+      'occupied',
+      'disabled',
+      'highlight-strong',
+      'highlight-medium',
+      'highlight-weak',
+      'winner'
+    );
     cellEl.textContent = '';
 
-    // Remove any win rate indicator
-    const indicator = cellEl.querySelector('.win-rate-indicator');
-    if (indicator) indicator.remove();
+    // Remove any visit indicator
+    const indicator = cellEl.querySelector('.visit-indicator');
+    if (indicator) {
+      indicator.remove();
+    }
 
     if (value) {
       cellEl.textContent = value;
@@ -83,14 +94,46 @@ function updateBoardDisplay(): void {
 // Find and highlight winning cells
 function highlightWinningCells(): void {
   const winningLines = [
-    [[0, 0], [0, 1], [0, 2]], // rows
-    [[1, 0], [1, 1], [1, 2]],
-    [[2, 0], [2, 1], [2, 2]],
-    [[0, 0], [1, 0], [2, 0]], // cols
-    [[0, 1], [1, 1], [2, 1]],
-    [[0, 2], [1, 2], [2, 2]],
-    [[0, 0], [1, 1], [2, 2]], // diagonals
-    [[0, 2], [1, 1], [2, 0]],
+    [
+      [0, 0],
+      [0, 1],
+      [0, 2],
+    ], // rows
+    [
+      [1, 0],
+      [1, 1],
+      [1, 2],
+    ],
+    [
+      [2, 0],
+      [2, 1],
+      [2, 2],
+    ],
+    [
+      [0, 0],
+      [1, 0],
+      [2, 0],
+    ], // cols
+    [
+      [0, 1],
+      [1, 1],
+      [2, 1],
+    ],
+    [
+      [0, 2],
+      [1, 2],
+      [2, 2],
+    ],
+    [
+      [0, 0],
+      [1, 1],
+      [2, 2],
+    ], // diagonals
+    [
+      [0, 2],
+      [1, 1],
+      [2, 0],
+    ],
   ];
 
   for (const line of winningLines) {
@@ -102,7 +145,9 @@ function highlightWinningCells(): void {
     if (valA && valA === valB && valB === valC) {
       for (const [row, col] of line as [number, number][]) {
         const cell = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-        if (cell) cell.classList.add('winner');
+        if (cell) {
+          cell.classList.add('winner');
+        }
       }
       break;
     }
@@ -111,10 +156,14 @@ function highlightWinningCells(): void {
 
 // Handle player clicking a cell
 function handleCellClick(row: number, col: number): void {
-  if (!isPlayerTurn || gameOver) return;
+  if (!isPlayerTurn || gameOver) {
+    return;
+  }
 
   const boardRow = game.board[row];
-  if (!boardRow || boardRow[col] !== null) return;
+  if (!boardRow || boardRow[col] !== null) {
+    return;
+  }
 
   // Make the move
   game.performMove([row, col] as TicTacToeMove);
@@ -141,6 +190,17 @@ function handleCellClick(row: number, col: number): void {
 
   // Use setTimeout to allow UI to update before heavy computation
   setTimeout(doAIMove, 50);
+}
+
+// Format move for display in tree
+function formatMove(move: TicTacToeMove | null): string {
+  if (!move) {
+    return 'Root';
+  }
+  const [row, col] = move;
+  // Use chess-like notation: columns are a,b,c and rows are 1,2,3
+  const colNames = ['a', 'b', 'c'];
+  return `${colNames[col]}${3 - row}`;
 }
 
 // AI makes a move with visualization
@@ -209,9 +269,11 @@ async function doAIMove(): Promise<void> {
   simCounterEl.textContent = '';
 }
 
-// Highlight cells based on AI evaluation
+// Highlight cells based on AI evaluation (by visits, not win rate)
 function highlightMoves(stats: { move: TicTacToeMove; visits: number; winRate: number }[]): void {
-  if (stats.length === 0) return;
+  if (stats.length === 0) {
+    return;
+  }
 
   const maxVisits = Math.max(...stats.map((s) => s.visits));
   const cells = boardEl.querySelectorAll('.tictactoe-cell');
@@ -221,14 +283,18 @@ function highlightMoves(stats: { move: TicTacToeMove; visits: number; winRate: n
     cellEl.classList.remove('highlight-strong', 'highlight-medium', 'highlight-weak');
 
     // Remove existing indicator
-    const existing = cellEl.querySelector('.win-rate-indicator');
-    if (existing) existing.remove();
+    const existing = cellEl.querySelector('.visit-indicator');
+    if (existing) {
+      existing.remove();
+    }
   });
 
   for (const stat of stats) {
     const [row, col] = stat.move;
     const cell = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`) as HTMLElement;
-    if (!cell || cell.classList.contains('occupied')) continue;
+    if (!cell || cell.classList.contains('occupied')) {
+      continue;
+    }
 
     const ratio = stat.visits / maxVisits;
     if (ratio > 0.6) {
@@ -239,10 +305,10 @@ function highlightMoves(stats: { move: TicTacToeMove; visits: number; winRate: n
       cell.classList.add('highlight-weak');
     }
 
-    // Add win rate indicator
+    // Add visit count indicator (not win rate)
     const indicator = document.createElement('span');
-    indicator.className = 'win-rate-indicator';
-    indicator.textContent = `${Math.round(stat.winRate * 100)}%`;
+    indicator.className = 'visit-indicator';
+    indicator.textContent = String(stat.visits);
     cell.appendChild(indicator);
   }
 }
@@ -252,51 +318,17 @@ function clearHighlights(): void {
   const cells = boardEl.querySelectorAll('.tictactoe-cell');
   cells.forEach((cell) => {
     cell.classList.remove('highlight-strong', 'highlight-medium', 'highlight-weak');
-    const indicator = cell.querySelector('.win-rate-indicator');
-    if (indicator) indicator.remove();
+    const indicator = cell.querySelector('.visit-indicator');
+    if (indicator) {
+      indicator.remove();
+    }
   });
 }
 
-// Update the tree visualization
+// Update the tree visualization using D3
 function updateTreeVisualization(tree: TreeNodeInfo<TicTacToeMove>): void {
-  const html = renderTreeNode(tree, 0, true);
-  treeContainerEl.innerHTML = html;
-}
-
-// Render a tree node recursively
-function renderTreeNode(node: TreeNodeInfo<TicTacToeMove>, depth: number, isRoot: boolean): string {
-  if (depth > 2) return '';
-
-  const moveStr = isRoot
-    ? 'Root'
-    : node.move
-      ? `Move: [${node.move[0]}, ${node.move[1]}]`
-      : 'Unknown';
-
-  const winRatePercent = Math.round(node.winRate * 100);
-  const isBest = !isRoot && depth === 1 && node.children.length === 0 && node.visits > 0;
-
-  let html = `
-    <div class="tree-node ${isBest ? 'best' : ''}">
-      <span class="move">${moveStr}</span>
-      <span class="stats"> | Visits: ${node.visits} | Win Rate: ${winRatePercent}%</span>
-      <div class="win-rate-bar">
-        <div class="fill" style="width: ${winRatePercent}%"></div>
-      </div>
-    </div>
-  `;
-
-  if (node.children.length > 0 && depth < 2) {
-    html += '<div class="tree-level">';
-    // Sort children by visits and show top ones
-    const sortedChildren = [...node.children].sort((a, b) => b.visits - a.visits).slice(0, 5);
-    for (const child of sortedChildren) {
-      html += renderTreeNode(child, depth + 1, false);
-    }
-    html += '</div>';
-  }
-
-  return html;
+  const d3Tree = convertToD3Tree(tree, formatMove, 3);
+  renderD3Tree(treeContainerEl, d3Tree);
 }
 
 // Update simulation counter
@@ -317,7 +349,8 @@ function startNewGame(): void {
   gameOver = false;
   setStatus('Your turn! Click a cell to play.');
   simCounterEl.textContent = '';
-  treeContainerEl.innerHTML = '<p style="color: var(--text-muted);">The AI\'s search tree will appear here when it\'s thinking...</p>';
+  treeContainerEl.innerHTML =
+    '<p style="color: var(--text-muted);">The AI\'s search tree will appear here when it\'s thinking...</p>';
   renderBoard();
 }
 
