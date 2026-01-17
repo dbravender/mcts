@@ -20,18 +20,16 @@
     "format": "biome format --write src/ web/src/",
     "check": "biome check --write src/ web/src/",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist web/dist",
+    "clean": "rm -rf dist docs",
     "ci": "npm run lint && npm run typecheck && npm run test",
     "prepublishOnly": "npm run clean && npm run build && npm test",
     "build:web": "node web/build.mjs",
-    "serve": "npm run build:web && npx http-server web/dist -o"
+    "serve": "npm run build:web && npx http-server docs -o"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.11",
-    "@types/d3": "^7.4.3",
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.11.5",
-    "d3": "^7.8.5",
     "esbuild": "^0.20.0",
     "mocha": "^10.2.0",
     "typescript": "^5.3.3"
