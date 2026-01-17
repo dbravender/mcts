@@ -283,12 +283,12 @@ function clearHighlights(): void {
 
 // Update the tree visualization (text-based)
 function updateTreeVisualization(tree: TreeNodeInfo<TicTacToeMove>): void {
-  const html = renderTreeNode(tree, 0, true);
+  const html = renderTreeNode(tree, 0, true, tree);
   treeContainerEl.innerHTML = html;
 }
 
 // Render a tree node recursively
-function renderTreeNode(node: TreeNodeInfo<TicTacToeMove>, depth: number, isRoot: boolean): string {
+function renderTreeNode(node: TreeNodeInfo<TicTacToeMove>, depth: number, isRoot: boolean, rootTree: TreeNodeInfo<TicTacToeMove>): string {
   if (depth > 2) {
     return '';
   }
@@ -300,14 +300,14 @@ function renderTreeNode(node: TreeNodeInfo<TicTacToeMove>, depth: number, isRoot
       : 'Unknown';
 
   // Color based on visits relative to siblings
-  const visitClass = depth === 1 ? getVisitClass(node.visits, tree.children) : '';
+  const visitClass = depth === 1 ? getVisitClass(node.visits, rootTree.children) : '';
 
   let html = `
     <div class="tree-node ${visitClass}">
       <span class="move">${moveStr}</span>
       <span class="stats"> | Visits: ${node.visits}</span>
       <div class="visit-bar">
-        <div class="fill" style="width: ${Math.min(100, (node.visits / Math.max(1, tree.visits)) * 100)}%"></div>
+        <div class="fill" style="width: ${Math.min(100, (node.visits / Math.max(1, rootTree.visits)) * 100)}%"></div>
       </div>
     </div>
   `;
@@ -317,16 +317,13 @@ function renderTreeNode(node: TreeNodeInfo<TicTacToeMove>, depth: number, isRoot
     // Sort children by visits and show top ones
     const sortedChildren = [...node.children].sort((a, b) => b.visits - a.visits).slice(0, 5);
     for (const child of sortedChildren) {
-      html += renderTreeNode(child, depth + 1, false);
+      html += renderTreeNode(child, depth + 1, false, rootTree);
     }
     html += '</div>';
   }
 
   return html;
 }
-
-// Store tree reference for relative visit calculation
-let tree: TreeNodeInfo<TicTacToeMove>;
 
 // Get visit class based on relative visits
 function getVisitClass(visits: number, siblings: TreeNodeInfo<TicTacToeMove>[]): string {

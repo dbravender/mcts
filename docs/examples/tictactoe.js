@@ -506,22 +506,22 @@
       }
     });
   }
-  function updateTreeVisualization(tree2) {
-    const html = renderTreeNode(tree2, 0, true);
+  function updateTreeVisualization(tree) {
+    const html = renderTreeNode(tree, 0, true, tree);
     treeContainerEl.innerHTML = html;
   }
-  function renderTreeNode(node, depth, isRoot) {
+  function renderTreeNode(node, depth, isRoot, rootTree) {
     if (depth > 2) {
       return "";
     }
     const moveStr = isRoot ? "Root" : node.move ? `[${node.move[0]}, ${node.move[1]}]` : "Unknown";
-    const visitClass = depth === 1 ? getVisitClass(node.visits, tree.children) : "";
+    const visitClass = depth === 1 ? getVisitClass(node.visits, rootTree.children) : "";
     let html = `
     <div class="tree-node ${visitClass}">
       <span class="move">${moveStr}</span>
       <span class="stats"> | Visits: ${node.visits}</span>
       <div class="visit-bar">
-        <div class="fill" style="width: ${Math.min(100, node.visits / Math.max(1, tree.visits) * 100)}%"></div>
+        <div class="fill" style="width: ${Math.min(100, node.visits / Math.max(1, rootTree.visits) * 100)}%"></div>
       </div>
     </div>
   `;
@@ -529,13 +529,12 @@
       html += '<div class="tree-level">';
       const sortedChildren = [...node.children].sort((a, b) => b.visits - a.visits).slice(0, 5);
       for (const child of sortedChildren) {
-        html += renderTreeNode(child, depth + 1, false);
+        html += renderTreeNode(child, depth + 1, false, rootTree);
       }
       html += "</div>";
     }
     return html;
   }
-  var tree;
   function getVisitClass(visits, siblings) {
     if (siblings.length === 0) {
       return "";

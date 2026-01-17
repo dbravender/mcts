@@ -270,16 +270,12 @@ function clearHighlights(): void {
 
 // Update the tree visualization (text-based)
 function updateTreeVisualization(treeData: TreeNodeInfo<Connect4Move>): void {
-  tree = treeData;
-  const html = renderTreeNode(treeData, 0, true);
+  const html = renderTreeNode(treeData, 0, true, treeData);
   treeContainerEl.innerHTML = html;
 }
 
-// Store tree reference for relative visit calculation
-let tree: TreeNodeInfo<Connect4Move>;
-
 // Render a tree node recursively
-function renderTreeNode(node: TreeNodeInfo<Connect4Move>, depth: number, isRoot: boolean): string {
+function renderTreeNode(node: TreeNodeInfo<Connect4Move>, depth: number, isRoot: boolean, rootTree: TreeNodeInfo<Connect4Move>): string {
   if (depth > 2) {
     return '';
   }
@@ -287,14 +283,14 @@ function renderTreeNode(node: TreeNodeInfo<Connect4Move>, depth: number, isRoot:
   const moveStr = isRoot ? 'Root' : node.move !== null ? `Column ${node.move + 1}` : 'Unknown';
 
   // Color based on visits relative to siblings
-  const visitClass = depth === 1 ? getVisitClass(node.visits, tree.children) : '';
+  const visitClass = depth === 1 ? getVisitClass(node.visits, rootTree.children) : '';
 
   let html = `
     <div class="tree-node ${visitClass}">
       <span class="move">${moveStr}</span>
       <span class="stats"> | Visits: ${node.visits}</span>
       <div class="visit-bar">
-        <div class="fill" style="width: ${Math.min(100, (node.visits / Math.max(1, tree.visits)) * 100)}%"></div>
+        <div class="fill" style="width: ${Math.min(100, (node.visits / Math.max(1, rootTree.visits)) * 100)}%"></div>
       </div>
     </div>
   `;
@@ -304,7 +300,7 @@ function renderTreeNode(node: TreeNodeInfo<Connect4Move>, depth: number, isRoot:
     // Sort children by visits and show top ones
     const sortedChildren = [...node.children].sort((a, b) => b.visits - a.visits).slice(0, 5);
     for (const child of sortedChildren) {
-      html += renderTreeNode(child, depth + 1, false);
+      html += renderTreeNode(child, depth + 1, false, rootTree);
     }
     html += '</div>';
   }
