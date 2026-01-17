@@ -1,6 +1,5 @@
 import { MCTS, type TreeNodeInfo } from '../../src/index';
 import { Connect4Game, type Connect4Move } from '../../src/games';
-import { convertToD3Tree, renderD3Tree } from './tree-viz';
 
 // DOM elements
 let boardEl: HTMLElement;
@@ -151,14 +150,6 @@ function findDropRow(col: number): number | null {
   return null;
 }
 
-// Format move for display in tree
-function formatMove(move: Connect4Move | null): string {
-  if (move === null) {
-    return 'Root';
-  }
-  return `Col ${move + 1}`;
-}
-
 // AI makes a move with visualization
 async function doAIMove(): Promise<void> {
   const simulations = parseInt(simulationsSelect.value, 10);
@@ -277,10 +268,61 @@ function clearHighlights(): void {
   });
 }
 
-// Update the tree visualization using D3
-function updateTreeVisualization(tree: TreeNodeInfo<Connect4Move>): void {
-  const d3Tree = convertToD3Tree(tree, formatMove, 3);
-  renderD3Tree(treeContainerEl, d3Tree);
+// Update the tree visualization (text-based)
+function updateTreeVisualization(treeData: TreeNodeInfo<Connect4Move>): void {
+  tree = treeData;
+  const html = renderTreeNode(treeData, 0, true);
+  treeContainerEl.innerHTML = html;
+}
+
+// Store tree reference for relative visit calculation
+let tree: TreeNodeInfo<Connect4Move>;
+
+// Render a tree node recursively
+function renderTreeNode(node: TreeNodeInfo<Connect4Move>, depth: number, isRoot: boolean): string {
+  if (depth > 2) {
+    return '';
+  }
+
+  const moveStr = isRoot ? 'Root' : node.move !== null ? `Column ${node.move + 1}` : 'Unknown';
+
+  // Color based on visits relative to siblings
+  const visitClass = depth === 1 ? getVisitClass(node.visits, tree.children) : '';
+
+  let html = `
+    <div class="tree-node ${visitClass}">
+      <span class="move">${moveStr}</span>
+      <span class="stats"> | Visits: ${node.visits}</span>
+      <div class="visit-bar">
+        <div class="fill" style="width: ${Math.min(100, (node.visits / Math.max(1, tree.visits)) * 100)}%"></div>
+      </div>
+    </div>
+  `;
+
+  if (node.children.length > 0 && depth < 2) {
+    html += '<div class="tree-level">';
+    // Sort children by visits and show top ones
+    const sortedChildren = [...node.children].sort((a, b) => b.visits - a.visits).slice(0, 5);
+    for (const child of sortedChildren) {
+      html += renderTreeNode(child, depth + 1, false);
+    }
+    html += '</div>';
+  }
+
+  return html;
+}
+
+// Get visit class based on relative visits
+function getVisitClass(visits: number, siblings: TreeNodeInfo<Connect4Move>[]): string {
+  if (siblings.length === 0) {
+    return '';
+  }
+  const maxVisits = Math.max(...siblings.map((s) => s.visits));
+  const ratio = visits / maxVisits;
+  if (ratio > 0.6) {
+    return 'best';
+  }
+  return '';
 }
 
 // Update simulation counter

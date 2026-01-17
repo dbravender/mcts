@@ -1,6 +1,5 @@
 import { MCTS, type TreeNodeInfo } from '../../src/index';
 import { TicTacToeGame } from '../../src/games';
-import { convertToD3Tree, renderD3Tree } from './tree-viz';
 
 type TicTacToeMove = readonly [number, number];
 
@@ -94,46 +93,14 @@ function updateBoardDisplay(): void {
 // Find and highlight winning cells
 function highlightWinningCells(): void {
   const winningLines = [
-    [
-      [0, 0],
-      [0, 1],
-      [0, 2],
-    ], // rows
-    [
-      [1, 0],
-      [1, 1],
-      [1, 2],
-    ],
-    [
-      [2, 0],
-      [2, 1],
-      [2, 2],
-    ],
-    [
-      [0, 0],
-      [1, 0],
-      [2, 0],
-    ], // cols
-    [
-      [0, 1],
-      [1, 1],
-      [2, 1],
-    ],
-    [
-      [0, 2],
-      [1, 2],
-      [2, 2],
-    ],
-    [
-      [0, 0],
-      [1, 1],
-      [2, 2],
-    ], // diagonals
-    [
-      [0, 2],
-      [1, 1],
-      [2, 0],
-    ],
+    [[0, 0], [0, 1], [0, 2]], // rows
+    [[1, 0], [1, 1], [1, 2]],
+    [[2, 0], [2, 1], [2, 2]],
+    [[0, 0], [1, 0], [2, 0]], // cols
+    [[0, 1], [1, 1], [2, 1]],
+    [[0, 2], [1, 2], [2, 2]],
+    [[0, 0], [1, 1], [2, 2]], // diagonals
+    [[0, 2], [1, 1], [2, 0]],
   ];
 
   for (const line of winningLines) {
@@ -190,17 +157,6 @@ function handleCellClick(row: number, col: number): void {
 
   // Use setTimeout to allow UI to update before heavy computation
   setTimeout(doAIMove, 50);
-}
-
-// Format move for display in tree
-function formatMove(move: TicTacToeMove | null): string {
-  if (!move) {
-    return 'Root';
-  }
-  const [row, col] = move;
-  // Use chess-like notation: columns are a,b,c and rows are 1,2,3
-  const colNames = ['a', 'b', 'c'];
-  return `${colNames[col]}${3 - row}`;
 }
 
 // AI makes a move with visualization
@@ -269,7 +225,7 @@ async function doAIMove(): Promise<void> {
   simCounterEl.textContent = '';
 }
 
-// Highlight cells based on AI evaluation (by visits, not win rate)
+// Highlight cells based on AI evaluation (by visits)
 function highlightMoves(stats: { move: TicTacToeMove; visits: number; winRate: number }[]): void {
   if (stats.length === 0) {
     return;
@@ -305,7 +261,7 @@ function highlightMoves(stats: { move: TicTacToeMove; visits: number; winRate: n
       cell.classList.add('highlight-weak');
     }
 
-    // Add visit count indicator (not win rate)
+    // Add visit count indicator
     const indicator = document.createElement('span');
     indicator.className = 'visit-indicator';
     indicator.textContent = String(stat.visits);
@@ -325,10 +281,64 @@ function clearHighlights(): void {
   });
 }
 
-// Update the tree visualization using D3
+// Update the tree visualization (text-based)
 function updateTreeVisualization(tree: TreeNodeInfo<TicTacToeMove>): void {
-  const d3Tree = convertToD3Tree(tree, formatMove, 3);
-  renderD3Tree(treeContainerEl, d3Tree);
+  const html = renderTreeNode(tree, 0, true);
+  treeContainerEl.innerHTML = html;
+}
+
+// Render a tree node recursively
+function renderTreeNode(node: TreeNodeInfo<TicTacToeMove>, depth: number, isRoot: boolean): string {
+  if (depth > 2) {
+    return '';
+  }
+
+  const moveStr = isRoot
+    ? 'Root'
+    : node.move
+      ? `[${node.move[0]}, ${node.move[1]}]`
+      : 'Unknown';
+
+  // Color based on visits relative to siblings
+  const visitClass = depth === 1 ? getVisitClass(node.visits, tree.children) : '';
+
+  let html = `
+    <div class="tree-node ${visitClass}">
+      <span class="move">${moveStr}</span>
+      <span class="stats"> | Visits: ${node.visits}</span>
+      <div class="visit-bar">
+        <div class="fill" style="width: ${Math.min(100, (node.visits / Math.max(1, tree.visits)) * 100)}%"></div>
+      </div>
+    </div>
+  `;
+
+  if (node.children.length > 0 && depth < 2) {
+    html += '<div class="tree-level">';
+    // Sort children by visits and show top ones
+    const sortedChildren = [...node.children].sort((a, b) => b.visits - a.visits).slice(0, 5);
+    for (const child of sortedChildren) {
+      html += renderTreeNode(child, depth + 1, false);
+    }
+    html += '</div>';
+  }
+
+  return html;
+}
+
+// Store tree reference for relative visit calculation
+let tree: TreeNodeInfo<TicTacToeMove>;
+
+// Get visit class based on relative visits
+function getVisitClass(visits: number, siblings: TreeNodeInfo<TicTacToeMove>[]): string {
+  if (siblings.length === 0) {
+    return '';
+  }
+  const maxVisits = Math.max(...siblings.map((s) => s.visits));
+  const ratio = visits / maxVisits;
+  if (ratio > 0.6) {
+    return 'best';
+  }
+  return '';
 }
 
 // Update simulation counter
