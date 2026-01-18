@@ -47,8 +47,13 @@ class Node<TMove, TPlayer> {
       return 0;
     }
 
-    const wins = this.wins[String(player)] ?? 0;
-    const scorePerVisit = wins / this.visits;
+    // Calculate score: wins = 1 point, draws = 0.5 points, losses = 0 points
+    // This ensures draws are preferred over losses (opponent wins)
+    const myWins = this.wins[String(player)] ?? 0;
+    const totalWins = Object.values(this.wins).reduce((sum, w) => sum + w, 0);
+    const draws = this.visits - totalWins;
+    const score = myWins + 0.5 * draws;
+    const scorePerVisit = score / this.visits;
 
     // UCB1 formula: exploitation + exploration
     // See https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation

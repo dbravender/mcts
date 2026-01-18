@@ -30,8 +30,11 @@
       if (this.parent === null) {
         return 0;
       }
-      const wins = this.wins[String(player)] ?? 0;
-      const scorePerVisit = wins / this.visits;
+      const myWins = this.wins[String(player)] ?? 0;
+      const totalWins = Object.values(this.wins).reduce((sum, w) => sum + w, 0);
+      const draws = this.visits - totalWins;
+      const score = myWins + 0.5 * draws;
+      const scorePerVisit = score / this.visits;
       return scorePerVisit + Math.sqrt(2 * Math.log(this.parent.visits) / this.visits);
     }
     getChildren(game2) {
