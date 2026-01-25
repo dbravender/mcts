@@ -1,29 +1,41 @@
-/* MCTS Game Arena - Vibrant Mobile-Friendly Styles */
+/* MCTS Game Arena - Vintage/Retro Styles */
 :root {
-  /* Vibrant color palette */
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --secondary: #ec4899;
-  --accent: #14b8a6;
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --danger: #ef4444;
+  /* Vintage/Retro Color Palette */
+  --cream: #F4EBD9;
+  --terracotta: #B85C38;
+  --burnt-orange: #D2691E;
+  --olive: #6B8E23;
+  --forest: #2C5530;
+  --burgundy: #6B2737;
+  --mustard: #D4A917;
+  --slate: #3E4A59;
+  --rust: #A0522D;
+  --charcoal: #2B2B2B;
+
+  /* Primary actions */
+  --primary: var(--burgundy);
+  --primary-dark: #4A1B26;
+  --secondary: var(--terracotta);
+  --accent: var(--olive);
+  --success: var(--forest);
+  --warning: var(--mustard);
+  --danger: var(--rust);
 
   /* Game colors */
-  --player-x: #3b82f6;
-  --player-o: #f97316;
-  --player-red: #ef4444;
-  --player-yellow: #eab308;
+  --player-x: var(--terracotta);
+  --player-o: var(--forest);
+  --player-red: var(--burgundy);
+  --player-yellow: var(--mustard);
 
   /* Backgrounds */
-  --bg-gradient-start: #0f172a;
-  --bg-gradient-end: #1e1b4b;
-  --card-bg: rgba(30, 41, 59, 0.8);
-  --card-border: rgba(148, 163, 184, 0.2);
+  --bg-gradient-start: var(--cream);
+  --bg-gradient-end: #E5D5B7;
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --card-border: var(--olive);
 
   /* Text */
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
+  --text-primary: var(--charcoal);
+  --text-secondary: var(--slate);
   --text-muted: #64748b;
 
   /* Sizing */
@@ -38,7 +50,7 @@
 }
 
 body {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: 'Courier New', monospace;
   background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
   color: var(--text-primary);
   min-height: 100vh;
@@ -61,11 +73,10 @@ body {
 .header h1 {
   font-size: clamp(2rem, 8vw, 3.5rem);
   font-weight: 800;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, var(--accent) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--forest);
   margin-bottom: 10px;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
 }
 
 .header p {
@@ -88,39 +99,43 @@ body {
   gap: 8px;
   padding: 10px 20px;
   background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 12px;
+  border: 3px solid var(--olive);
+  border-radius: 0;
   color: var(--text-primary);
   text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  font-weight: bold;
+  transition: all 0.2s ease;
 }
 
 .nav-link:hover {
-  background: var(--primary);
-  border-color: var(--primary);
+  background: var(--burgundy);
+  color: var(--cream);
+  border-color: var(--rust);
   transform: translateY(-2px);
 }
 
 .nav-link.active {
-  background: var(--primary);
-  border-color: var(--primary);
+  background: var(--forest);
+  color: var(--cream);
+  border-color: var(--olive);
 }
 
 /* Cards */
 .card {
   background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 20px;
+  border: 3px solid var(--olive);
+  border-radius: 0;
   padding: 30px;
   margin: 20px 0;
-  backdrop-filter: blur(10px);
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
 }
 
 .card h2 {
   font-size: 1.5rem;
   margin-bottom: 15px;
-  color: var(--text-primary);
+  color: var(--forest);
+  border-bottom: 3px solid var(--olive);
+  padding-bottom: 0.5rem;
 }
 
 .card p {
@@ -137,15 +152,16 @@ body {
 
 .game-card {
   background: var(--card-bg);
-  border: 2px solid var(--card-border);
-  border-radius: 24px;
+  border: 3px solid var(--olive);
+  border-radius: 0;
   padding: 40px 30px;
   text-align: center;
   text-decoration: none;
   color: inherit;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
 }
 
 .game-card::before {
@@ -155,15 +171,16 @@ body {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  background: var(--terracotta);
   transform: scaleX(0);
   transition: transform 0.3s ease;
 }
 
 .game-card:hover {
-  border-color: var(--primary);
+  border-color: var(--burgundy);
   transform: translateY(-5px);
-  box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+  box-shadow: 8px 8px 0 rgba(0,0,0,0.15);
+  background: #FFF;
 }
 
 .game-card:hover::before {
@@ -179,7 +196,7 @@ body {
 .game-card h3 {
   font-size: 1.5rem;
   margin-bottom: 10px;
-  color: var(--text-primary);
+  color: var(--forest);
 }
 
 .game-card p {
@@ -205,17 +222,18 @@ body {
   grid-template-rows: repeat(3, var(--cell-size));
   gap: 8px;
   padding: 15px;
-  background: var(--card-bg);
-  border-radius: 16px;
-  border: 2px solid var(--card-border);
+  background: var(--charcoal);
+  border-radius: 0;
+  border: 3px solid var(--rust);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
 }
 
 .tictactoe-cell {
   width: var(--cell-size);
   height: var(--cell-size);
-  background: rgba(15, 23, 42, 0.6);
-  border: 2px solid var(--card-border);
-  border-radius: 12px;
+  background: var(--cream);
+  border: 3px solid var(--olive);
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -227,18 +245,18 @@ body {
 }
 
 .tictactoe-cell:hover:not(.occupied):not(.disabled) {
-  background: rgba(99, 102, 241, 0.2);
-  border-color: var(--primary);
+  background: var(--mustard);
+  transform: scale(1.05);
 }
 
 .tictactoe-cell.X {
-  color: var(--player-x);
-  text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  color: var(--terracotta);
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
 }
 
 .tictactoe-cell.O {
-  color: var(--player-o);
-  text-shadow: 0 0 20px rgba(249, 115, 22, 0.5);
+  color: var(--forest);
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
 }
 
 .tictactoe-cell.winner {
@@ -252,18 +270,18 @@ body {
 
 /* Heat map highlighting for moves */
 .tictactoe-cell.highlight-strong {
-  background: rgba(34, 197, 94, 0.4);
-  border-color: var(--success);
+  background: rgba(107, 142, 35, 0.3);
+  border-color: var(--forest);
 }
 
 .tictactoe-cell.highlight-medium {
-  background: rgba(245, 158, 11, 0.3);
-  border-color: var(--warning);
+  background: rgba(212, 169, 23, 0.3);
+  border-color: var(--mustard);
 }
 
 .tictactoe-cell.highlight-weak {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: var(--danger);
+  background: rgba(160, 82, 45, 0.2);
+  border-color: var(--rust);
 }
 
 /* Visit count indicator overlay */
@@ -272,11 +290,11 @@ body {
   bottom: 2px;
   right: 4px;
   font-size: 0.55rem;
-  color: var(--text-secondary);
+  color: var(--cream);
   font-weight: 700;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--charcoal);
   padding: 1px 4px;
-  border-radius: 3px;
+  border-radius: 0;
 }
 
 /* Game Board - 4 in a Row */
@@ -286,16 +304,16 @@ body {
   grid-template-rows: repeat(6, var(--connect4-cell));
   gap: 6px;
   padding: 15px;
-  background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
-  border-radius: 16px;
-  border: 3px solid #3b82f6;
-  box-shadow: 0 10px 30px rgba(30, 64, 175, 0.4);
+  background: var(--slate);
+  border-radius: 0;
+  border: 3px solid var(--charcoal);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
 .connect4-cell {
   width: var(--connect4-cell);
   height: var(--connect4-cell);
-  background: var(--bg-gradient-start);
+  background: var(--charcoal);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -303,21 +321,21 @@ body {
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
-  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.6);
 }
 
 .connect4-cell:hover:not(.occupied):not(.disabled) {
-  background: rgba(99, 102, 241, 0.3);
+  background: rgba(107, 39, 55, 0.3);
 }
 
 .connect4-cell.Red {
-  background: radial-gradient(circle at 30% 30%, #f87171, var(--player-red) 60%, #b91c1c);
-  box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(239, 68, 68, 0.5);
+  background: radial-gradient(circle at 30% 30%, #8B3742, var(--burgundy) 60%, #4A1B26);
+  box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(107, 39, 55, 0.5);
 }
 
 .connect4-cell.Yellow {
-  background: radial-gradient(circle at 30% 30%, #fde047, var(--player-yellow) 60%, #ca8a04);
-  box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(234, 179, 8, 0.5);
+  background: radial-gradient(circle at 30% 30%, #F0C929, var(--mustard) 60%, #9A7B10);
+  box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(212, 169, 23, 0.5);
 }
 
 .connect4-cell.winner {
@@ -339,24 +357,24 @@ body {
 
 .column-indicator {
   height: 8px;
-  border-radius: 4px;
-  background: var(--card-border);
+  border-radius: 0;
+  background: var(--olive);
   transition: all 0.3s ease;
 }
 
 .column-indicator.highlight-strong {
-  background: var(--success);
-  box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+  background: var(--forest);
+  box-shadow: 0 0 10px rgba(44, 85, 48, 0.6);
 }
 
 .column-indicator.highlight-medium {
-  background: var(--warning);
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+  background: var(--mustard);
+  box-shadow: 0 0 10px rgba(212, 169, 23, 0.6);
 }
 
 .column-indicator.highlight-weak {
-  background: var(--danger);
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+  background: var(--rust);
+  box-shadow: 0 0 10px rgba(160, 82, 45, 0.6);
 }
 
 /* Status and Info */
@@ -366,8 +384,9 @@ body {
   text-align: center;
   padding: 15px 25px;
   background: var(--card-bg);
-  border-radius: 12px;
-  border: 1px solid var(--card-border);
+  border-radius: 0;
+  border: 3px solid var(--olive);
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
 }
 
 .status.thinking {
@@ -375,19 +394,19 @@ body {
 }
 
 .status .player-x {
-  color: var(--player-x);
+  color: var(--terracotta);
 }
 
 .status .player-o {
-  color: var(--player-o);
+  color: var(--forest);
 }
 
 .status .player-red {
-  color: var(--player-red);
+  color: var(--burgundy);
 }
 
 .status .player-yellow {
-  color: var(--player-yellow);
+  color: var(--mustard);
 }
 
 /* Simulation counter */
@@ -405,19 +424,22 @@ body {
 .tree-section h3 {
   font-size: 1.2rem;
   margin-bottom: 15px;
-  color: var(--text-secondary);
+  color: var(--forest);
   display: flex;
   align-items: center;
   gap: 10px;
+  border-bottom: 3px solid var(--olive);
+  padding-bottom: 0.5rem;
 }
 
 .tree-container {
   background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
+  border: 3px solid var(--olive);
+  border-radius: 0;
   padding: 15px;
   overflow-x: auto;
   min-height: 200px;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
 }
 
 .tree-container svg {
@@ -429,45 +451,45 @@ body {
 .tree-node {
   padding: 8px 12px;
   margin: 4px 0;
-  background: rgba(15, 23, 42, 0.6);
-  border-radius: 8px;
-  border-left: 3px solid var(--card-border);
+  background: var(--cream);
+  border-radius: 0;
+  border-left: 4px solid var(--olive);
   font-size: 0.9rem;
 }
 
 .tree-node.best {
-  border-left-color: var(--success);
-  background: rgba(34, 197, 94, 0.15);
+  border-left-color: var(--forest);
+  background: rgba(44, 85, 48, 0.15);
 }
 
 .tree-node .move {
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--charcoal);
 }
 
 .tree-node .stats {
-  color: var(--text-secondary);
+  color: var(--slate);
   font-size: 0.85rem;
 }
 
 .tree-level {
   margin-left: 20px;
   padding-left: 10px;
-  border-left: 1px dashed var(--card-border);
+  border-left: 2px dashed var(--olive);
 }
 
 .visit-bar {
   height: 4px;
-  background: var(--card-border);
-  border-radius: 2px;
+  background: var(--olive);
+  border-radius: 0;
   margin-top: 6px;
   overflow: hidden;
 }
 
 .visit-bar .fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
-  border-radius: 2px;
+  background: var(--forest);
+  border-radius: 0;
   transition: width 0.3s ease;
 }
 
@@ -479,31 +501,34 @@ body {
   gap: 8px;
   padding: 12px 24px;
   font-size: 1rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 12px;
+  font-weight: bold;
+  border: 3px solid var(--rust);
+  border-radius: 0;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-family: 'Courier New', monospace;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: white;
+  background: var(--burgundy);
+  color: var(--cream);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+  background: var(--rust);
 }
 
 .btn-secondary {
   background: var(--card-bg);
-  border: 2px solid var(--card-border);
-  color: var(--text-primary);
+  border: 3px solid var(--olive);
+  color: var(--charcoal);
 }
 
 .btn-secondary:hover {
-  border-color: var(--primary);
+  border-color: var(--forest);
+  background: var(--cream);
 }
 
 .controls {
@@ -520,7 +545,7 @@ body {
   }
   to {
     transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+    box-shadow: 0 0 20px rgba(44, 85, 48, 0.6);
   }
 }
 
@@ -529,7 +554,7 @@ body {
     opacity: 1;
   }
   50% {
-    opacity: 0.6;
+    opacity: 0.7;
   }
 }
 
@@ -572,16 +597,18 @@ body {
 .setting-group label {
   font-size: 0.85rem;
   color: var(--text-secondary);
+  font-weight: bold;
 }
 
 .setting-group select,
 .setting-group input {
   padding: 8px 12px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid var(--card-border);
-  border-radius: 8px;
-  color: var(--text-primary);
+  background: var(--cream);
+  border: 2px solid var(--olive);
+  border-radius: 0;
+  color: var(--charcoal);
   font-size: 0.95rem;
+  font-family: 'Courier New', monospace;
 }
 
 /* Responsive */
@@ -596,7 +623,6 @@ body {
 
   .card {
     padding: 20px;
-    border-radius: 16px;
   }
 
   .game-card {
@@ -626,10 +652,12 @@ body {
 }
 
 .footer a {
-  color: var(--primary);
+  color: var(--burgundy);
   text-decoration: none;
+  border-bottom: 2px solid var(--rust);
 }
 
 .footer a:hover {
-  text-decoration: underline;
+  color: var(--terracotta);
+  border-bottom-color: var(--terracotta);
 }
