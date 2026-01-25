@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCTS - Monte Carlo Tree Search Library</title>
+  <style>
+    :root {
+      /* Vintage/Retro Color Palette */
+      --cream: #F4EBD9;
+      --terracotta: #B85C38;
+      --burnt-orange: #D2691E;
+      --olive: #6B8E23;
+      --forest: #2C5530;
+      --burgundy: #6B2737;
+      --mustard: #D4A917;
+      --slate: #3E4A59;
+      --rust: #A0522D;
+      --charcoal: #2B2B2B;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Courier New', monospace;
+      background: var(--cream);
+      color: var(--charcoal);
+      line-height: 1.6;
+    }
+
+    header {
+      background: var(--forest);
+      color: var(--cream);
+      padding: 2rem 1rem 1rem 1rem;
+      border-bottom: 4px solid var(--olive);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      letter-spacing: 2px;
+    }
+
+    .tagline {
+      color: var(--mustard);
+      font-size: 1.1rem;
+    }
+
+    .game-section {
+      background: var(--slate);
+      padding: 2rem 1rem;
+      border-bottom: 4px solid var(--charcoal);
+    }
+
+    .game-container {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .game-title {
+      color: var(--cream);
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      gap: 8px;
+      margin: 1.5rem auto;
+      padding: 20px;
+      background: var(--charcoal);
+      border: 3px solid var(--rust);
+      width: fit-content;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      background: var(--cream);
+      border: 3px solid var(--olive);
+      font-size: 3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      font-weight: bold;
+    }
+
+    .cell:hover:not(.taken) {
+      background: var(--mustard);
+      transform: scale(1.05);
+    }
+
+    .cell.taken {
+      cursor: not-allowed;
+    }
+
+    .cell.x {
+      color: var(--terracotta);
+    }
+
+    .cell.o {
+      color: var(--forest);
+    }
+
+    .status {
+      color: var(--mustard);
+      font-size: 1.2rem;
+      margin: 1rem 0;
+      min-height: 30px;
+    }
+
+    .controls {
+      margin-top: 1rem;
+    }
+
+    button {
+      background: var(--burgundy);
+      color: var(--cream);
+      border: 3px solid var(--rust);
+      padding: 0.8rem 2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+      margin: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: var(--rust);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    section {
+      margin: 3rem 0;
+    }
+
+    h2 {
+      color: var(--forest);
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      border-bottom: 3px solid var(--olive);
+      padding-bottom: 0.5rem;
+    }
+
+    h3 {
+      color: var(--burgundy);
+      font-size: 1.5rem;
+      margin: 1.5rem 0 1rem 0;
+    }
+
+    pre {
+      background: var(--slate);
+      color: var(--cream);
+      padding: 1.5rem;
+      border-left: 5px solid var(--terracotta);
+      overflow-x: auto;
+      margin: 1rem 0;
+      border-radius: 4px;
+    }
+
+    code {
+      font-family: 'Courier New', monospace;
+      background: var(--slate);
+      color: var(--mustard);
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+    }
+
+    pre code {
+      background: transparent;
+      padding: 0;
+    }
+
+    ul {
+      margin-left: 2rem;
+      margin-top: 1rem;
+    }
+
+    li {
+      margin: 0.5rem 0;
+    }
+
+    a {
+      color: var(--burgundy);
+      text-decoration: none;
+      border-bottom: 2px solid var(--rust);
+      transition: all 0.2s;
+    }
+
+    a:hover {
+      color: var(--terracotta);
+      border-bottom-color: var(--terracotta);
+    }
+
+    .feature-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .feature {
+      background: white;
+      padding: 1.5rem;
+      border-left: 5px solid var(--olive);
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .feature h4 {
+      color: var(--forest);
+      margin-bottom: 0.5rem;
+    }
+
+    .stats {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin: 1rem 0;
+      color: var(--cream);
+    }
+
+    .stat {
+      background: rgba(255,255,255,0.1);
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+
+    .thinking {
+      color: var(--mustard);
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>MCTS</h1>
+    <div class="tagline">Monte Carlo Tree Search for TypeScript</div>
+  </header>
+
+  <div class="game-section">
+    <div class="game-container">
+      <h2 class="game-title">Interactive Demo: Tic-Tac-Toe vs AI</h2>
+      <div class="status" id="status">Your turn! Click any cell to play.</div>
+      <div class="stats">
+        <div class="stat">Simulations: <span id="simulations">1000</span></div>
+        <div class="stat">Last AI Think Time: <span id="thinkTime">--</span></div>
+        <div class="stat">Moves Evaluated: <span id="movesEval">--</span></div>
+      </div>
+      <div class="board" id="board"></div>
+      <div class="controls">
+        <button onclick="resetGame()">New Game</button>
+        <button onclick="changeSimulations()">Change AI Strength</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <section id="about">
+      <h2>About</h2>
+      <p>
+        A modern, high-performance TypeScript implementation of Monte Carlo Tree Search (MCTS) for game AI.
+        This library uses an efficient clone-once-per-simulation approach, achieving <strong>~470K moves per second</strong>.
+      </p>
+
+      <div class="feature-list">
+        <div class="feature">
+          <h4>🚀 High Performance</h4>
+          <p>Optimized with zero-copy cloning strategy for maximum speed</p>
+        </div>
+        <div class="feature">
+          <h4>📘 TypeScript First</h4>
+          <p>Full type safety with strict typing and comprehensive interfaces</p>
+        </div>
+        <div class="feature">
+          <h4>🎲 Random Support</h4>
+          <p>Built-in RandomSelection for games with dice, cards, and other random elements</p>
+        </div>
+        <div class="feature">
+          <h4>🎮 Game Agnostic</h4>
+          <p>Works with any turn-based game - just implement the Game interface</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="installation">
+      <h2>Installation</h2>
+      <pre><code>npm install mcts</code></pre>
+    </section>
+
+    <section id="usage">
+      <h2>Quick Start</h2>
+      <p>Implement the <code>Game</code> interface for your game:</p>
+      <pre><code>import { MCTS, Game } from 'mcts';
+
+class MyGame implements Game&lt;Move, Player&gt; {
+  getPossibleMoves(): Move[] {
+    // Return all legal moves
+  }
+
+  performMove(move: Move): void {
+    // Apply the move to game state
+  }
+
+  getCurrentPlayer(): Player {
+    // Return current player
+  }
+
+  getWinner(): Player | null {
+    // Return winner or null if game ongoing
+  }
+
+  clone(): MyGame {
+    // Return deep copy of game state
+  }
+}
+
+// Use MCTS to find the best move
+const mcts = new MCTS(game, 1000); // 1000 simulations
+const bestMove = mcts.selectMove();</code></pre>
+    </section>
+
+    <section id="api">
+      <h2>API Reference</h2>
+
+      <h3>MCTS Constructor</h3>
+      <pre><code>new MCTS(game: Game, rounds?: number)</code></pre>
+      <ul>
+        <li><code>game</code> - Your game instance implementing the Game interface</li>
+        <li><code>rounds</code> - Number of simulations to run (default: 1000)</li>
+      </ul>
+
+      <h3>Methods</h3>
+      <ul>
+        <li><code>selectMove(): Move</code> - Returns the best move based on simulations</li>
+        <li><code>getStats()</code> - Returns detailed statistics for each possible move</li>
+      </ul>
+
+      <h3>Game Interface</h3>
+      <pre><code>interface Game&lt;TMove, TPlayer&gt; {
+  getPossibleMoves(): readonly TMove[] | RandomSelection&lt;TMove&gt;;
+  performMove(move: TMove): void;
+  getCurrentPlayer(): TPlayer;
+  getWinner(): TPlayer | null;
+  clone(): Game&lt;TMove, TPlayer&gt;;
+}</code></pre>
+    </section>
+
+    <section id="performance">
+      <h2>Performance</h2>
+      <p>Benchmark results across different game types:</p>
+      <ul>
+        <li>SingleCellGame: <strong>799K moves/sec</strong></li>
+        <li>TwoCellGame: <strong>504K moves/sec</strong></li>
+        <li>TicTacToe: <strong>57K moves/sec</strong> (1K rounds)</li>
+        <li>SummingDice: <strong>495K moves/sec</strong></li>
+      </ul>
+      <p>Average: <strong>~470K moves/second</strong></p>
+    </section>
+
+    <section id="links">
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://github.com/dbravender/mcts">GitHub Repository</a></li>
+        <li><a href="https://www.npmjs.com/package/mcts">NPM Package</a></li>
+        <li><a href="https://en.wikipedia.org/wiki/Monte_Carlo_tree_search">Learn about MCTS</a></li>
+      </ul>
+    </section>
+  </div>
+
+  <script>
+    // Simple TicTacToe implementation
+    class TicTacToe {
+      constructor() {
+        this.board = Array(9).fill(null);
+        this.currentPlayer = 'X';
+      }
+
+      getPossibleMoves() {
+        if (this.getWinner() !== null) return [];
+        return this.board.map((cell, i) => cell === null ? i : null).filter(i => i !== null);
+      }
+
+      performMove(move) {
+        this.board[move] = this.currentPlayer;
+        this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
+      }
+
+      getCurrentPlayer() {
+        return this.currentPlayer;
+      }
+
+      getWinner() {
+        const lines = [
+          [0,1,2], [3,4,5], [6,7,8], // rows
+          [0,3,6], [1,4,7], [2,5,8], // cols
+          [0,4,8], [2,4,6]           // diagonals
+        ];
+
+        for (const [a,b,c] of lines) {
+          if (this.board[a] && this.board[a] === this.board[b] && this.board[a] === this.board[c]) {
+            return this.board[a];
+          }
+        }
+
+        return this.board.includes(null) ? null : 'draw';
+      }
+
+      clone() {
+        const cloned = new TicTacToe();
+        cloned.board = [...this.board];
+        cloned.currentPlayer = this.currentPlayer;
+        return cloned;
+      }
+    }
+
+    // Simple MCTS implementation
+    class Node {
+      constructor(game, parent, move) {
+        this.game = game;
+        this.parent = parent;
+        this.move = move;
+        this.wins = {};
+        this.visits = 0;
+        this.children = null;
+      }
+
+      getUCB1(player) {
+        if (this.visits === 0) return Infinity;
+        if (!this.parent) return 0;
+        const wins = this.wins[player] || 0;
+        return wins / this.visits + Math.sqrt(2 * Math.log(this.parent.visits) / this.visits);
+      }
+
+      expand() {
+        if (this.children === null) {
+          const moves = this.game.getPossibleMoves();
+          this.children = moves.map(move => new Node(this.game, this, move));
+        }
+        return this.children;
+      }
+
+      selectChild(player) {
+        return this.children.reduce((best, child) =>
+          child.getUCB1(player) > best.getUCB1(player) ? child : best
+        );
+      }
+    }
+
+    class SimpleMCTS {
+      constructor(game, rounds = 1000) {
+        this.game = game;
+        this.rounds = rounds;
+        this.rootNode = new Node(game, null, null);
+      }
+
+      selectMove() {
+        const startTime = performance.now();
+        let totalMoves = 0;
+
+        for (let i = 0; i < this.rounds; i++) {
+          const simGame = this.game.clone();
+          const path = [this.rootNode];
+          let node = this.rootNode;
+          node.visits++;
+
+          while (node.expand().length > 0) {
+            node = node.selectChild(simGame.getCurrentPlayer());
+            node.visits++;
+            path.push(node);
+            if (node.move !== null) {
+              simGame.performMove(node.move);
+              totalMoves++;
+            }
+          }
+
+          const winner = simGame.getWinner();
+          for (const n of path) {
+            if (winner && winner !== 'draw') {
+              n.wins[winner] = (n.wins[winner] || 0) + 1;
+            }
+          }
+        }
+
+        const endTime = performance.now();
+        const thinkTime = endTime - startTime;
+
+        const children = this.rootNode.expand();
+        const best = children.reduce((best, child) =>
+          child.visits > best.visits ? child : best
+        );
+
+        return {
+          move: best.move,
+          thinkTime: thinkTime.toFixed(2),
+          movesEvaluated: totalMoves
+        };
+      }
+    }
+
+    // Game state
+    let game = new TicTacToe();
+    let simulations = 1000;
+
+    function createBoard() {
+      const board = document.getElementById('board');
+      board.innerHTML = '';
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.onclick = () => playerMove(i);
+        cell.id = `cell-${i}`;
+        board.appendChild(cell);
+      }
+    }
+
+    function updateBoard() {
+      game.board.forEach((value, i) => {
+        const cell = document.getElementById(`cell-${i}`);
+        cell.textContent = value || '';
+        cell.className = `cell ${value ? 'taken' : ''} ${value ? value.toLowerCase() : ''}`;
+      });
+
+      const winner = game.getWinner();
+      const status = document.getElementById('status');
+
+      if (winner === 'draw') {
+        status.textContent = "It's a draw!";
+      } else if (winner) {
+        status.textContent = `${winner} wins!`;
+      } else if (game.currentPlayer === 'X') {
+        status.textContent = 'Your turn! Click any cell to play.';
+      } else {
+        status.textContent = 'AI is thinking...';
+      }
+    }
+
+    function playerMove(index) {
+      if (game.board[index] !== null || game.getWinner() !== null || game.currentPlayer !== 'X') {
+        return;
+      }
+
+      game.performMove(index);
+      updateBoard();
+
+      if (game.getWinner() === null && game.currentPlayer === 'O') {
+        setTimeout(aiMove, 100);
+      }
+    }
+
+    function aiMove() {
+      const status = document.getElementById('status');
+      status.innerHTML = '<span class="thinking">AI is thinking...</span>';
+
+      setTimeout(() => {
+        const mcts = new SimpleMCTS(game, simulations);
+        const result = mcts.selectMove();
+
+        document.getElementById('thinkTime').textContent = `${result.thinkTime}ms`;
+        document.getElementById('movesEvaluated').textContent = result.movesEvaluated.toLocaleString();
+
+        game.performMove(result.move);
+        updateBoard();
+      }, 50);
+    }
+
+    function resetGame() {
+      game = new TicTacToe();
+      updateBoard();
+    }
+
+    function changeSimulations() {
+      const newSims = prompt('Enter number of simulations (100-10000):', simulations);
+      if (newSims) {
+        const parsed = parseInt(newSims);
+        if (parsed >= 100 && parsed <= 10000) {
+          simulations = parsed;
+          document.getElementById('simulations').textContent = simulations;
+        }
+      }
+    }
+
+    // Initialize
+    createBoard();
+    updateBoard();
+  </script>
+</body>
+</html>
