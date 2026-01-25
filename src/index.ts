@@ -15,7 +15,16 @@ export interface Game<TMove = unknown, TPlayer = unknown> {
   clone(): Game<TMove, TPlayer>;
 }
 
-type PlayerScore = Record<string, number>;
+export type PlayerScore = Record<string, number>;
+
+// Tree node info for visualization
+export interface TreeNodeInfo<TMove> {
+  move: TMove | null;
+  visits: number;
+  wins: PlayerScore;
+  winRate: number;
+  children: TreeNodeInfo<TMove>[];
+}
 
 class Node<TMove, TPlayer> {
   public wins: PlayerScore = {};
@@ -38,8 +47,13 @@ class Node<TMove, TPlayer> {
       return 0;
     }
 
-    const wins = this.wins[String(player)] ?? 0;
-    const scorePerVisit = wins / this.visits;
+    // Calculate score: wins = 1 point, draws = 0.5 points, losses = 0 points
+    // This ensures draws are preferred over losses (opponent wins)
+    const myWins = this.wins[String(player)] ?? 0;
+    const totalWins = Object.values(this.wins).reduce((sum, w) => sum + w, 0);
+    const draws = this.visits - totalWins;
+    const score = myWins + 0.5 * draws;
+    const scorePerVisit = score / this.visits;
 
     // UCB1 formula: exploitation + exploration
     // See https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation
@@ -103,6 +117,29 @@ class Node<TMove, TPlayer> {
     }
     return array;
   }
+
+  // Export tree structure for visualization
+  public toTreeInfo(player: TPlayer, maxDepth: number): TreeNodeInfo<TMove> {
+    const playerWins = this.wins[String(player)] ?? 0;
+    const winRate = this.visits > 0 ? playerWins / this.visits : 0;
+
+    let childrenInfo: TreeNodeInfo<TMove>[] = [];
+    if (maxDepth > 0 && this.children) {
+      childrenInfo = this.children
+        .filter((c) => c.visits > 0)
+        .sort((a, b) => b.visits - a.visits)
+        .slice(0, 10) // Limit to top 10 children for performance
+        .map((c) => c.toTreeInfo(player, maxDepth - 1));
+    }
+
+    return {
+      move: this.move,
+      visits: this.visits,
+      wins: { ...this.wins },
+      winRate,
+      children: childrenInfo,
+    };
+  }
 }
 
 export class MCTS<TMove = unknown, TPlayer = unknown> {
@@ -158,6 +195,67 @@ export class MCTS<TMove = unknown, TPlayer = unknown> {
         wins: { ...child.wins },
       };
     });
+  }
+
+  // Run a batch of simulations (for incremental visualization)
+  public runSimulations(count: number): void {
+    for (let i = 0; i < count; i++) {
+      this.runSimulation();
+    }
+  }
+
+  // Get current total simulation count
+  public getSimulationCount(): number {
+    return this.rootNode.visits;
+  }
+
+  // Get tree structure for visualization
+  public getTreeInfo(maxDepth: number = 3): TreeNodeInfo<TMove> {
+    const player = this.game.getCurrentPlayer();
+    return this.rootNode.toTreeInfo(player, maxDepth);
+  }
+
+  // Get the best move without running more simulations
+  public getBestMove(): TMove | null {
+    const children = this.rootNode.children;
+    if (!children || children.length === 0) {
+      return null;
+    }
+
+    let bestChild = children[0];
+    if (!bestChild) {
+      return null;
+    }
+
+    for (const child of children) {
+      if (child.visits > bestChild.visits) {
+        bestChild = child;
+      }
+    }
+
+    return bestChild.move;
+  }
+
+  // Get move statistics for board highlighting
+  public getMoveStats(): { move: TMove; visits: number; wins: PlayerScore; winRate: number }[] {
+    const children = this.rootNode.children;
+    if (!children) {
+      return [];
+    }
+
+    const player = this.game.getCurrentPlayer();
+    return children
+      .filter((child) => child.move !== null && child.visits > 0)
+      .map((child) => {
+        const playerWins = child.wins[String(player)] ?? 0;
+        return {
+          move: child.move as TMove,
+          visits: child.visits,
+          wins: { ...child.wins },
+          winRate: child.visits > 0 ? playerWins / child.visits : 0,
+        };
+      })
+      .sort((a, b) => b.visits - a.visits);
   }
 
   public compareNodes(
